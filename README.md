@@ -71,45 +71,35 @@ Accédez directement à la version déployée : [https://latury.github.io/Jarvis
 
 ## 📂 Structure du projet
 
+```
 Jarvis-Optimisateur-Construction/
 │
-├── 📄 index.html # Page principale de l'application
+├── index.html                       # Page principale de l'application
 │
-├── 📁 css/
-│ ├── style.css # Styles généraux de l'application
-│ └── themes.css # Thèmes clair et sombre
+├── css/
+│   ├── style.css                    # Styles généraux de l'application
+│   └── themes.css                   # Thèmes clair et sombre
 │
-├── 📁 js/
-│ ├── principal.js # Point d'entrée JavaScript
-│ ├── chargeur.js # Gestion du chargement des données
-│ ├── optimiseur.js # Algorithme d'optimisation génétique
-│ └── interface.js # Gestion de l'interface utilisateur
+├── js/
+│   ├── principal.js                 # Point d'entrée JavaScript
+│   ├── chargeur.js                  # Gestion du chargement des données
+│   ├── optimiseur.js                # Algorithme d'optimisation génétique
+│   └── interface.js                 # Gestion de l'interface utilisateur
 │
-├── 📁 ressources/
-│ └── 📁 icones/
-│ ├── 📁 engrenages/ # Icônes PNG des Cogs (pièces d'engrenage)
-│ ├── 📁 chapeaux/ # Icônes PNG des chapeaux de personnages
-│ ├── 📁 tete/ # Icône PNG de la tête du personnage
-│ └── 📁 archives/ # Fichiers de référence archivés
+├── ressources/
+│   └── icones/
+│       ├── engrenages/              # Icônes PNG des Cogs (engrenages)
+│       ├── chapeaux/                # Icônes PNG des chapeaux
+│       ├── tete/                    # Icône PNG de la tête
+│       └── archives/                # Fichiers de référence
 │
-├── 📄 README.md # Documentation principale du projet
-├── 📄 CHANGELOG.md # Historique technique des modifications
-├── 📄 PATCHNOTES.md # Notes de version pour utilisateurs
-├── 📄 .gitignore # Fichiers ignorés par Git
-└── 📄 LICENSE # Licence MIT du projet
+├── README.md                        # Documentation principale du projet
+├── CHANGELOG.md                     # Historique technique des modifications
+├── PATCHNOTES.md                    # Notes de version pour utilisateurs
+├── .gitignore                       # Fichiers ignorés par Git
+└── LICENSE                          # Licence MIT du projet
+```
 
----
-
-## 📖 Guide d'utilisation
-
-_(Documentation à venir dans les prochaines versions)_
-
-1. Chargez vos données de sauvegarde Idleon
-2. Visualisez votre plateau de construction actuel
-3. Lancez l'optimisation
-4. Consultez les statistiques et le placement suggéré
-
----
 
 ## 🤝 Contribution
 
