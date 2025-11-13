@@ -99,7 +99,7 @@ Jarvis-Optimisateur-Construction/
 ├── .gitignore                       # Fichiers ignorés par Git
 └── LICENSE                          # Licence MIT du projet
 ```
-
+---
 
 ## 🤝 Contribution
 
