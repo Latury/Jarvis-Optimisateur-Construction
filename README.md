@@ -72,26 +72,31 @@ Accédez directement à la version déployée : [https://latury.github.io/Jarvis
 ## 📂 Structure du projet
 
 Jarvis-Optimisateur-Construction/
-├── index.html # Page principale
-├── css/
-│ ├── style.css # Styles généraux
-│ └── themes.css # Thèmes clair/sombre
-├── js/
+│
+├── 📄 index.html # Page principale de l'application
+│
+├── 📁 css/
+│ ├── style.css # Styles généraux de l'application
+│ └── themes.css # Thèmes clair et sombre
+│
+├── 📁 js/
 │ ├── principal.js # Point d'entrée JavaScript
-│ ├── chargeur.js # Chargement des données
-│ ├── optimiseur.js # Algorithme d'optimisation
-│ └── interface.js # Gestion de l'interface
-├── ressources/
-│ └── icones/
-│ ├── engrenages/ # Icônes des Cogs
-│ ├── chapeaux/ # Icônes des chapeaux
-│ ├── tete/ # Icône de la tête
-│ └── archives/ # Fichiers de référence
-├── README.md # Documentation principale
-├── CHANGELOG.md # Historique des modifications
-└── PATCHNOTES.md # Notes de version détaillées
-
-text
+│ ├── chargeur.js # Gestion du chargement des données
+│ ├── optimiseur.js # Algorithme d'optimisation génétique
+│ └── interface.js # Gestion de l'interface utilisateur
+│
+├── 📁 ressources/
+│ └── 📁 icones/
+│ ├── 📁 engrenages/ # Icônes PNG des Cogs (pièces d'engrenage)
+│ ├── 📁 chapeaux/ # Icônes PNG des chapeaux de personnages
+│ ├── 📁 tete/ # Icône PNG de la tête du personnage
+│ └── 📁 archives/ # Fichiers de référence archivés
+│
+├── 📄 README.md # Documentation principale du projet
+├── 📄 CHANGELOG.md # Historique technique des modifications
+├── 📄 PATCHNOTES.md # Notes de version pour utilisateurs
+├── 📄 .gitignore # Fichiers ignorés par Git
+└── 📄 LICENSE # Licence MIT du projet
 
 ---
 
