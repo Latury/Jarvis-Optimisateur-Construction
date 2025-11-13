@@ -1,0 +1,66 @@
+/* JARVIS - Thèmes Clair/Sombre v0.1.0 */
+
+/* === THÈME CLAIR === */
+body.theme-clair {
+  /* Couleurs principales */
+  --couleur-fond-principal: #f5f5f5;
+  --couleur-fond-secondaire: #ffffff;
+  --couleur-fond-panneau: #e8f4f8;
+  --couleur-bordure: #d0d0d0;
+  --couleur-texte: #2c3e50;
+  --couleur-texte-secondaire: #5a6c7d;
+
+  /* Couleurs d'accentuation (identiques au mode sombre) */
+  --couleur-primaire: #00adb5;
+  --couleur-primaire-hover: #00d9e1;
+  --couleur-secondaire: #ff6b6b;
+  --couleur-succes: #4caf50;
+  --couleur-avertissement: #ff9800;
+  --couleur-erreur: #f44336;
+
+  /* Ombres adaptées au mode clair */
+  --ombre-legere: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --ombre-moyenne: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --ombre-forte: 0 8px 16px rgba(0, 0, 0, 0.16);
+}
+
+/* Ajustements spécifiques au mode clair */
+body.theme-clair .case-inventaire,
+body.theme-clair .case-plateau {
+  background-color: #ffffff;
+}
+
+body.theme-clair .case-inventaire:hover,
+body.theme-clair .case-plateau:hover {
+  background-color: #e8f4f8;
+}
+
+body.theme-clair .onglet {
+  color: #5a6c7d;
+}
+
+body.theme-clair .onglet:hover {
+  color: #2c3e50;
+}
+
+body.theme-clair .zone-texte-donnees {
+  background-color: #ffffff;
+  color: #2c3e50;
+}
+
+body.theme-clair .zone-logs {
+  background-color: #ffffff;
+  color: #2c3e50;
+}
+
+body.theme-clair ::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+}
+
+body.theme-clair ::-webkit-scrollbar-thumb {
+  background-color: #00adb5;
+}
+
+body.theme-clair ::-webkit-scrollbar-thumb:hover {
+  background-color: #00d9e1;
+}

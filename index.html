@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jarvis - Optimisateur de Construction v0.1.0</title>
+  <link rel="icon" type="image/png" href="ressources/icones/tete/head.png">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .grille {
+      display: grid;
+    }
+
+    .inventaire-grille {
+      grid-template-columns: repeat(3, 55px);
+      grid-template-rows: repeat(5, 55px);
+      gap: 4px;
+    }
+
+    .plateau-grille {
+      grid-template-columns: repeat(12, 45px);
+      grid-template-rows: repeat(8, 45px);
+      gap: 4px;
+    }
+
+    .case {
+      background-color: var(--couleur-fond-panneau, #0f3460);
+      border: 2px solid var(--couleur-bordure, #1f4068);
+      border-radius: 4px;
+      width: 100%;
+      height: 100%;
+      transition: all 0.2s;
+    }
+
+    .case:hover {
+      border-color: var(--couleur-primaire, #00adb5);
+    }
+
+    #modal-console .actions-modal {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      margin: 0 0 18px 0 !important;
+      align-items: center;
+    }
+
+    #modal-console .actions-modal button span {
+      margin-right: 5px;
+    }
+
+    #modal-console .modal-fermer {
+      margin-left: auto;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+
+    .modal-fermer {
+      user-select: none;
+    }
+  </style>
+</head>
+
+<body class="theme-sombre">
+
+  <header>
+    <div class="logo-titre">
+      <img src="ressources/icones/tete/head.png" alt="Logo" class="logo">
+      <h1>🏗️ Jarvis - Optimisateur de Construction</h1>
+    </div>
+    <div class="boutons-header">
+      <div class="menu-dropdown">
+        <button class="btn-header">📋 Menu</button>
+        <div class="dropdown-contenu">
+          <!-- <button class="btn-dropdown" onclick="ouvrirModalDonnees()">📥 Chargeur de données</button> -->
+          <button class="btn-dropdown" onclick="ouvrirModalJSON()">📄 Chargeur de JSON</button>
+          <button class="btn-dropdown" onclick="optimiser()">🚀 Optimiser le placement</button>
+          <button class="btn-dropdown btn-sec" onclick="reinitialiser()">🔄 Réinitialiser</button>
+          <div style="border-top: 1px solid #1f4068; margin: 5px 0;"></div>
+          <button class="btn-dropdown" onclick="sauvegarder()">💾 Sauvegarder</button>
+          <button class="btn-dropdown" onclick="exporterDonnees()">📤 Exporter la sauvegarde</button>
+          <button class="btn-dropdown btn-sec" onclick="supprimerSauvegarde()">🗑️ Supprimer la sauvegarde</button>
+        </div>
+      </div>
+      <div class="menu-dropdown">
+        <button class="btn-header">⚙️ Options</button>
+        <div class="dropdown-contenu">
+          <button class="btn-dropdown" onclick="toggleTheme()"><span>🌙</span>Thème Clair/Sombre</button>
+          <button class="btn-dropdown" onclick="popupIndisponible()"><span>🖥️</span>Paramètres d'affichage</button>
+        </div>
+      </div>
+      <div class="menu-dropdown">
+        <button class="btn-header">❓ Aide</button>
+        <div class="dropdown-contenu">
+          <button class="btn-dropdown"
+            onclick="window.open('https://idleon.wiki/wiki/Construction', '_blank')"><span>📖</span>Wiki Idleon</button>
+          <button class="btn-dropdown"
+            onclick="window.open('https://github.com/Latury/Jarvis-Optimisateur-Construction', '_blank')"><span>💻</span>GitHub</button>
+          <button class="btn-dropdown" onclick="afficherAPropos()"><span>ℹ️</span>À propos</button>
+        </div>
+      </div>
+      <div class="menu-dropdown">
+        <button class="btn-header">📜 Logs</button>
+        <div class="dropdown-contenu">
+          <button class="btn-dropdown" onclick="afficherLogsConsole()"><span>📋</span>Console de développement</button>
+          <button class="btn-dropdown btn-sec" onclick="effacerLogsConsole()"><span>🗑️</span>Effacer la
+            console</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Modals -->
+  <div id="modal-donnees" class="modal">
+    <div class="modal-contenu">
+      <span class="modal-fermer" onclick="fermerModalDonnees()">&times;</span>
+      <h2>📥 Chargeur de données</h2>
+      <p style="color: #a8b2d1;">Importez vos données de sauvegarde Idleon</p>
+      <textarea id="zone-donnees" rows="10" placeholder="Collez vos données ici..."></textarea>
+      <div class="actions-modal">
+        <button onclick="chargerDonnees()">⬆️ Charger</button>
+        <button onclick="collerDonnees()">📋 Coller</button>
+        <button class="btn-sec" onclick="effacerDonnees()">🗑️ Effacer</button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-json" class="modal">
+    <div class="modal-contenu">
+      <span class="modal-fermer" onclick="fermerModalJSON()">&times;</span>
+      <h2>📄 Chargeur de JSON</h2>
+      <p style="color: #a8b2d1;">Importez un fichier JSON de configuration</p>
+      <textarea id="zone-json" rows="10" placeholder="Collez votre JSON ici..."></textarea>
+      <div class="actions-modal">
+        <button onclick="chargerJSON()">⬆️ Charger JSON</button>
+        <button onclick="copierJSON()">📋 Copier</button>
+        <button class="btn-sec" onclick="effacerJSON()">🗑️ Effacer</button>
+      </div>
+    </div>
+  </div>
+  <div id="modal-console" class="modal">
+    <div class="modal-contenu modal-large">
+      <h2>📜 Console de développement</h2>
+      <div class="actions-modal">
+        <button onclick="copierLogs()"><span>📋</span>Copier</button>
+        <button onclick="rafraichirConsole()"><span>🔄</span>Rafraîchir</button>
+        <button class="btn-sec" onclick="effacerLogsConsole()"><span>🗑️</span>Effacer</button>
+        <span class="modal-fermer" onclick="fermerModalConsole()">&times;</span>
+      </div>
+      <div id="console-logs" class="console-logs"></div>
+    </div>
+  </div>
+  <div id="modal-apropos" class="modal">
+    <div class="modal-contenu">
+      <span class="modal-fermer" onclick="fermerAPropos()">&times;</span>
+      <h2>À propos</h2>
+      <p>Jarvis - Optimisateur de Construction<br>Développé par Latury, 2025<br><a
+          href="https://github.com/Latury/Jarvis-Optimisateur-Construction" target="_blank">GitHub</a></p>
+    </div>
+  </div>
+
+  <main>
+    <div class="colonne gauche">
+      <h2>📦 Inventaire</h2>
+      <div class="inventaire-zone">
+        <div class="grille inventaire-grille" id="inventaire"></div>
+        <div class="pagination">
+          <button type="button" onclick="pagePrecedente()">◀️</button>
+          <span id="info-page">Page 1 / 18</span>
+          <button type="button" onclick="pageSuivante()">▶️</button>
+        </div>
+      </div>
+    </div>
+    <div class="colonne centre">
+      <h2>🔧 Plateau de Construction</h2>
+      <div class="grille plateau-grille" id="plateau"></div>
+      <div class="etapes-basse" style="margin-top:28px;">
+        <button type="button" onclick="etapePrecedente()">◀️</button>
+        <span id="etape-infos">Étape 0 / 0 — En attente d'optimisation...</span>
+        <button type="button" onclick="etapeSuivante()">▶️</button>
+      </div>
+    </div>
+    <div class="colonne droite">
+      <div class="stats-box">
+        <h2>📊 Étapes d'optimisation</h2>
+        <p class="message-vide" id="etapes-contenu">Aucune optimisation en cours...</p>
+      </div>
+      <div class="stats-box">
+        <h2>📈 Statistiques</h2>
+        <h3>Avant optimisation</h3>
+        <div class="stat-ligne"><span>Taux de construction :</span><span class="stat-valeur"
+            id="avant-construction">-</span></div>
+        <div class="stat-ligne"><span>XP gagnée :</span><span class="stat-valeur" id="avant-xp">-</span></div>
+        <div class="stat-ligne"><span>Vitesse flags :</span><span class="stat-valeur" id="avant-flags">-</span></div>
+        <div class="stat-ligne"><span>Score total :</span><span class="stat-valeur" id="avant-score">-</span></div>
+        <h3>Après optimisation</h3>
+        <div class="stat-ligne"><span>Taux de construction :</span><span class="stat-valeur"
+            id="apres-construction">-</span></div>
+        <div class="stat-ligne"><span>XP gagnée :</span><span class="stat-valeur" id="apres-xp">-</span></div>
+        <div class="stat-ligne"><span>Vitesse flags :</span><span class="stat-valeur" id="apres-flags">-</span></div>
+        <div class="stat-ligne"><span>Score total :</span><span class="stat-valeur" id="apres-score">-</span></div>
+        <div class="amelioration">⬆️ Amélioration : <span id="amelioration">-</span></div>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-ligne">© 2025 <strong>Latury</strong> - Jarvis Optimisateur de Construction</div>
+    <div class="footer-ligne">Version <strong>0.1.0</strong> - Phase de développement</div>
+    <div class="footer-ligne">
+      <a href="https://github.com/Latury/Jarvis-Optimisateur-Construction" target="_blank">GitHub</a>
+      <span> | </span>
+      <a href="https://idleon.wiki/wiki/Construction" target="_blank">Wiki Idleon</a>
+    </div>
+  </footer>
+  <script>
+    // Fonctions JS corrigées
+    let pageActuelle = 1, pagesTotal = 18;
+    let etapeActuelle = 0, etapes = [];
+    let consoleLogs = [];
+
+    function updateInfoPage() {
+      const elt = document.getElementById("info-page");
+      if (elt) elt.textContent = `Page ${pageActuelle} / ${pagesTotal}`;
+    }
+    function pagePrecedente() {
+      if (pageActuelle > 1) {
+        pageActuelle--;
+        updateInfoPage();
+        logConsole('info', `Page précédente : ${pageActuelle}`);
+      }
+    }
+    function pageSuivante() {
+      if (pageActuelle < pagesTotal) {
+        pageActuelle++;
+        updateInfoPage();
+        logConsole('info', `Page suivante : ${pageActuelle}`);
+      }
+    }
+    function afficherEtape() {
+      const span = document.getElementById('etape-infos');
+      if (!span) return;
+      if (etapes.length === 0) {
+        span.textContent = "Étape 0 / 0 — En attente d'optimisation...";
+      } else {
+        span.textContent = `Étape ${etapeActuelle} / ${etapes.length} — ${etapes[etapeActuelle - 1]}`;
+      }
+    }
+    function etapePrecedente() { if (etapes.length > 0 && etapeActuelle > 1) { etapeActuelle--; afficherEtape(); } }
+    function etapeSuivante() { if (etapes.length > 0 && etapeActuelle < etapes.length) { etapeActuelle++; afficherEtape(); } }
+    function startOptimisationEtapes() {
+      etapes = ["Analyse du plateau...", "Calcul des positions optimales...", "Application des modifications"];
+      etapeActuelle = 1;
+      afficherEtape();
+      document.getElementById('etapes-contenu').innerHTML = etapes.map((e, i) =>
+        `<div style="color: #00adb5;">⏳ Étape ${i + 1} : ${e}</div>`
+      ).join('');
+    }
+    function resetOptimisationEtapes() {
+      etapes = [];
+      etapeActuelle = 0;
+      afficherEtape();
+      document.getElementById('etapes-contenu').innerHTML = '<p class="message-vide">Aucune optimisation en cours...</p>';
+    }
+    // Modals
+    function ouvrirModalDonnees() { document.getElementById("modal-donnees")?.classList.add("actif"); }
+    function fermerModalDonnees() { document.getElementById("modal-donnees")?.classList.remove("actif"); }
+    function ouvrirModalJSON() { document.getElementById("modal-json")?.classList.add("actif"); }
+    function fermerModalJSON() { document.getElementById("modal-json")?.classList.remove("actif"); }
+    function afficherAPropos() { document.getElementById("modal-apropos")?.classList.add("actif"); }
+    function fermerAPropos() { document.getElementById("modal-apropos")?.classList.remove("actif"); }
+    function afficherLogsConsole() {
+      const consoleDiv = document.getElementById('console-logs');
+      if (!consoleDiv) return;
+      if (consoleLogs.length === 0) {
+        consoleDiv.innerHTML = '<p style="color: #a8b2d1; text-align: center; padding: 20px;">Aucun log disponible</p>';
+      } else {
+        consoleDiv.innerHTML = consoleLogs.map(log =>
+          `<div class="console-log-ligne">
+            <span class="console-log-time">${log.time}</span>
+            <span class="console-log-type ${log.type}">[${log.type.toUpperCase()}]</span>
+            <span class="console-log-message">${log.message}</span>
+          </div>`).join('');
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      }
+      document.getElementById('modal-console')?.classList.add('actif');
+    }
+    function copierLogs() {
+      const logs = document.getElementById('console-logs')?.innerText || '';
+      navigator.clipboard.writeText(logs);
+      logConsole('success', 'Logs copiés dans le presse-papier');
+      afficherLogsConsole();
+    }
+    function rafraichirConsole() { afficherLogsConsole(); }
+    function effacerLogsConsole() {
+      consoleLogs = [];
+      logConsole('info', 'Console effacée');
+      afficherLogsConsole();
+    }
+    function fermerModalConsole() {
+      document.getElementById('modal-console')?.classList.remove('actif');
+    }
+    // Popup indisponible
+    function popupIndisponible() {
+      alert('Cette fonctionnalité sera disponible dans une future mise à jour !');
+    }
+    // Actions placeholders
+    function sauvegarder() { logConsole('info', 'Action sauvegarder non implémentée.'); }
+    function exporterDonnees() { logConsole('info', 'Action exporter non implémentée.'); }
+    function supprimerSauvegarde() { logConsole('info', 'Action supprimer non implémentée.'); }
+    function toggleTheme() { logConsole('info', 'Changement de thème non implémenté.'); }
+    function chargerDonnees() {
+      logConsole('success', 'Données chargées (simulation).');
+      fermerModalDonnees();
+    }
+    function collerDonnees() {
+      if (navigator.clipboard) {
+        navigator.clipboard.readText().then(function (text) {
+          document.getElementById('zone-donnees').value = text;
+          logConsole('success', 'Données collées depuis le presse-papier');
+        }).catch(function () {
+          logConsole('error', 'Impossible de lire le presse-papier (permissions)');
+        });
+      } else {
+        logConsole('error', 'API clipboard non supportée');
+      }
+    }
+    function effacerDonnees() {
+      const area = document.getElementById('zone-donnees');
+      if (area) area.value = '';
+      logConsole('warn', 'Zone données effacée');
+    }
+    function chargerJSON() {
+      logConsole('success', 'JSON chargé (simulation).');
+      fermerModalJSON();
+    }
+    function copierJSON() { logConsole('info', 'Copie JSON simulée.'); }
+    function effacerJSON() {
+      const area = document.getElementById('zone-json');
+      if (area) area.value = '';
+      logConsole('warn', 'Zone JSON effacée');
+    }
+    function creerGrilles() {
+      const inv = document.getElementById('inventaire');
+      const plateau = document.getElementById('plateau');
+      if (inv) {
+        inv.innerHTML = '';
+        for (let i = 0; i < 15; i++) {
+          const div = document.createElement('div');
+          div.className = 'case';
+          inv.appendChild(div);
+        }
+      }
+      if (plateau) {
+        plateau.innerHTML = '';
+        for (let i = 0; i < 96; i++) {
+          const div = document.createElement('div');
+          div.className = 'case';
+          plateau.appendChild(div);
+        }
+      }
+    }
+    function logConsole(type, message) {
+      const time = new Date().toLocaleTimeString('fr-FR');
+      consoleLogs.push({ time, type, message });
+      if (consoleLogs.length > 100) consoleLogs.shift();
+    }
+    function capturerErreurs() {
+      window.onerror = function (message, source, lineno, colno, error) {
+        logConsole('error', `Erreur: ${message} (Ligne ${lineno})`);
+        return false;
+      };
+    }
+
+    window.onload = function () {
+      creerGrilles();
+      resetOptimisationEtapes();
+      updateInfoPage();
+      capturerErreurs();
+      logConsole('info', 'Bienvenue sur Jarvis !');
+      ouvrirModalDonnees(); // Affiche automatiquement le pop-up dès l'arrivée sur le site
+    };
+  </script>
+</body>
+
+</html>
