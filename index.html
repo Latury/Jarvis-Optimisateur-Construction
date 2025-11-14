@@ -164,10 +164,11 @@
       <div class="inventaire-zone">
         <div class="grille inventaire-grille" id="inventaire"></div>
         <div class="pagination">
-          <button type="button" onclick="pagePrecedente()">◀️</button>
+          <button type="button" onclick="pagePrecedente()" id="btn-precedent">◀️</button>
           <span id="info-page">Page 1 / 18</span>
-          <button type="button" onclick="pageSuivante()">▶️</button>
+          <button type="button" onclick="pageSuivante()" id="btn-suivant">▶️</button>
         </div>
+
       </div>
     </div>
     <div class="colonne centre">
@@ -212,172 +213,473 @@
     </div>
   </footer>
   <script>
-    // Fonctions JS corrigées
+    // ========================================
+    // Jarvis - Optimisateur de Construction
+    // Version 0.1.5
+    // ========================================
+
+    // Variables globales
     let pageActuelle = 1, pagesTotal = 18;
     let etapeActuelle = 0, etapes = [];
     let consoleLogs = [];
+    let themeActuel = 'sombre'; // Préparation pour le toggle de thème
+
+    // ========================================
+    // GESTION DE LA PAGINATION
+    // ========================================
 
     function updateInfoPage() {
       const elt = document.getElementById("info-page");
-      if (elt) elt.textContent = `Page ${pageActuelle} / ${pagesTotal}`;
+      if (elt) {
+        elt.textContent = `Page ${pageActuelle} / ${pagesTotal}`;
+      }
     }
+
     function pagePrecedente() {
       if (pageActuelle > 1) {
         pageActuelle--;
         updateInfoPage();
-        logConsole('info', `Page précédente : ${pageActuelle}`);
+        logConsole('info', `📄 Navigation vers la page ${pageActuelle}`);
+      } else {
+        logConsole('warn', '⚠️ Déjà à la première page');
       }
     }
+
     function pageSuivante() {
       if (pageActuelle < pagesTotal) {
         pageActuelle++;
         updateInfoPage();
-        logConsole('info', `Page suivante : ${pageActuelle}`);
+        logConsole('info', `📄 Navigation vers la page ${pageActuelle}`);
+      } else {
+        logConsole('warn', '⚠️ Déjà à la dernière page');
       }
     }
+
+    function allerAPage(numPage) {
+      if (numPage >= 1 && numPage <= pagesTotal) {
+        pageActuelle = numPage;
+        updateInfoPage();
+        logConsole('info', `📄 Saut vers la page ${pageActuelle}`);
+      }
+    }
+
+    // ========================================
+    // GESTION DES ÉTAPES D'OPTIMISATION
+    // ========================================
+
     function afficherEtape() {
       const span = document.getElementById('etape-infos');
       if (!span) return;
+
       if (etapes.length === 0) {
         span.textContent = "Étape 0 / 0 — En attente d'optimisation...";
       } else {
         span.textContent = `Étape ${etapeActuelle} / ${etapes.length} — ${etapes[etapeActuelle - 1]}`;
       }
     }
-    function etapePrecedente() { if (etapes.length > 0 && etapeActuelle > 1) { etapeActuelle--; afficherEtape(); } }
-    function etapeSuivante() { if (etapes.length > 0 && etapeActuelle < etapes.length) { etapeActuelle++; afficherEtape(); } }
+
+    function etapePrecedente() {
+      if (etapes.length > 0 && etapeActuelle > 1) {
+        etapeActuelle--;
+        afficherEtape();
+        logConsole('info', `⏮️ Étape précédente : ${etapeActuelle}`);
+      } else {
+        logConsole('warn', '⚠️ Aucune étape précédente disponible');
+      }
+    }
+
+    function etapeSuivante() {
+      if (etapes.length > 0 && etapeActuelle < etapes.length) {
+        etapeActuelle++;
+        afficherEtape();
+        logConsole('info', `⏭️ Étape suivante : ${etapeActuelle}`);
+      } else {
+        logConsole('warn', '⚠️ Aucune étape suivante disponible');
+      }
+    }
+
     function startOptimisationEtapes() {
-      etapes = ["Analyse du plateau...", "Calcul des positions optimales...", "Application des modifications"];
+      etapes = [
+        "🔍 Analyse du plateau...",
+        "🧮 Calcul des positions optimales...",
+        "✅ Application des modifications"
+      ];
       etapeActuelle = 1;
       afficherEtape();
-      document.getElementById('etapes-contenu').innerHTML = etapes.map((e, i) =>
-        `<div style="color: #00adb5;">⏳ Étape ${i + 1} : ${e}</div>`
-      ).join('');
+
+      const etapesContenu = document.getElementById('etapes-contenu');
+      if (etapesContenu) {
+        etapesContenu.innerHTML = etapes.map((e, i) =>
+          `<div style="color: #00adb5; padding: 8px 0;">⏳ Étape ${i + 1} : ${e}</div>`
+        ).join('');
+      }
+
+      logConsole('success', '🚀 Optimisation démarrée');
     }
+
     function resetOptimisationEtapes() {
       etapes = [];
       etapeActuelle = 0;
       afficherEtape();
-      document.getElementById('etapes-contenu').innerHTML = '<p class="message-vide">Aucune optimisation en cours...</p>';
+
+      const etapesContenu = document.getElementById('etapes-contenu');
+      if (etapesContenu) {
+        etapesContenu.innerHTML = '<p class="message-vide">Aucune optimisation en cours...</p>';
+      }
+
+      logConsole('info', '🔄 Optimisation réinitialisée');
     }
-    // Modals
-    function ouvrirModalDonnees() { document.getElementById("modal-donnees")?.classList.add("actif"); }
-    function fermerModalDonnees() { document.getElementById("modal-donnees")?.classList.remove("actif"); }
-    function ouvrirModalJSON() { document.getElementById("modal-json")?.classList.add("actif"); }
-    function fermerModalJSON() { document.getElementById("modal-json")?.classList.remove("actif"); }
-    function afficherAPropos() { document.getElementById("modal-apropos")?.classList.add("actif"); }
-    function fermerAPropos() { document.getElementById("modal-apropos")?.classList.remove("actif"); }
+
+    // ========================================
+    // GESTION DES MODALS
+    // ========================================
+
+    function ouvrirModalDonnees() {
+      const modal = document.getElementById("modal-donnees");
+      if (modal) {
+        modal.classList.add("actif");
+        logConsole('info', '📂 Modal de chargement des données ouvert');
+      }
+    }
+
+    function fermerModalDonnees() {
+      const modal = document.getElementById("modal-donnees");
+      if (modal) {
+        modal.classList.remove("actif");
+        logConsole('info', '❌ Modal de chargement des données fermé');
+      }
+    }
+
+    function ouvrirModalJSON() {
+      const modal = document.getElementById("modal-json");
+      if (modal) {
+        modal.classList.add("actif");
+        logConsole('info', '📋 Modal JSON ouvert');
+      }
+    }
+
+    function fermerModalJSON() {
+      const modal = document.getElementById("modal-json");
+      if (modal) {
+        modal.classList.remove("actif");
+        logConsole('info', '❌ Modal JSON fermé');
+      }
+    }
+
+    function afficherAPropos() {
+      const modal = document.getElementById("modal-apropos");
+      if (modal) {
+        modal.classList.add("actif");
+        logConsole('info', 'ℹ️ Modal À propos ouvert');
+      }
+    }
+
+    function fermerAPropos() {
+      const modal = document.getElementById("modal-apropos");
+      if (modal) {
+        modal.classList.remove("actif");
+        logConsole('info', '❌ Modal À propos fermé');
+      }
+    }
+
     function afficherLogsConsole() {
       const consoleDiv = document.getElementById('console-logs');
       if (!consoleDiv) return;
+
       if (consoleLogs.length === 0) {
-        consoleDiv.innerHTML = '<p style="color: #a8b2d1; text-align: center; padding: 20px;">Aucun log disponible</p>';
+        consoleDiv.innerHTML = '<p style="color: #a8b2d1; text-align: center; padding: 20px;">📭 Aucun log disponible</p>';
       } else {
         consoleDiv.innerHTML = consoleLogs.map(log =>
           `<div class="console-log-ligne">
-            <span class="console-log-time">${log.time}</span>
-            <span class="console-log-type ${log.type}">[${log.type.toUpperCase()}]</span>
-            <span class="console-log-message">${log.message}</span>
-          </div>`).join('');
+        <span class="console-log-time">${log.time}</span>
+        <span class="console-log-type ${log.type}">[${log.type.toUpperCase()}]</span>
+        <span class="console-log-message">${log.message}</span>
+      </div>`
+        ).join('');
         consoleDiv.scrollTop = consoleDiv.scrollHeight;
       }
-      document.getElementById('modal-console')?.classList.add('actif');
+
+      const modal = document.getElementById('modal-console');
+      if (modal) {
+        modal.classList.add('actif');
+      }
     }
+
     function copierLogs() {
-      const logs = document.getElementById('console-logs')?.innerText || '';
-      navigator.clipboard.writeText(logs);
-      logConsole('success', 'Logs copiés dans le presse-papier');
+      const logs = consoleLogs.map(log =>
+        `[${log.time}] [${log.type.toUpperCase()}] ${log.message}`
+      ).join('\n');
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(logs).then(() => {
+          logConsole('success', '📋 Logs copiés dans le presse-papier');
+          afficherLogsConsole();
+        }).catch(() => {
+          logConsole('error', '❌ Erreur lors de la copie des logs');
+        });
+      } else {
+        logConsole('error', '❌ API clipboard non supportée');
+      }
+    }
+
+    function rafraichirConsole() {
+      logConsole('info', '🔄 Console rafraîchie');
       afficherLogsConsole();
     }
-    function rafraichirConsole() { afficherLogsConsole(); }
+
     function effacerLogsConsole() {
       consoleLogs = [];
-      logConsole('info', 'Console effacée');
+      logConsole('info', '🧹 Console effacée');
       afficherLogsConsole();
     }
+
     function fermerModalConsole() {
-      document.getElementById('modal-console')?.classList.remove('actif');
+      const modal = document.getElementById('modal-console');
+      if (modal) {
+        modal.classList.remove('actif');
+        logConsole('info', '❌ Console fermée');
+      }
     }
-    // Popup indisponible
-    function popupIndisponible() {
-      alert('Cette fonctionnalité sera disponible dans une future mise à jour !');
-    }
-    // Actions placeholders
-    function sauvegarder() { logConsole('info', 'Action sauvegarder non implémentée.'); }
-    function exporterDonnees() { logConsole('info', 'Action exporter non implémentée.'); }
-    function supprimerSauvegarde() { logConsole('info', 'Action supprimer non implémentée.'); }
-    function toggleTheme() { logConsole('info', 'Changement de thème non implémenté.'); }
+
+    // ========================================
+    // FONCTIONS DE GESTION DES DONNÉES
+    // ========================================
+
     function chargerDonnees() {
-      logConsole('success', 'Données chargées (simulation).');
-      fermerModalDonnees();
+      const zoneDonnees = document.getElementById('zone-donnees');
+      if (!zoneDonnees || !zoneDonnees.value.trim()) {
+        logConsole('error', '❌ Aucune donnée à charger');
+        return;
+      }
+
+      try {
+        // Validation basique des données (à améliorer en v0.2.0)
+        const donnees = zoneDonnees.value.trim();
+        if (donnees.length < 10) {
+          logConsole('error', '❌ Données invalides ou trop courtes');
+          return;
+        }
+
+        logConsole('success', '✅ Données chargées avec succès (simulation)');
+        fermerModalDonnees();
+      } catch (error) {
+        logConsole('error', `❌ Erreur lors du chargement : ${error.message}`);
+      }
     }
+
     function collerDonnees() {
       if (navigator.clipboard) {
         navigator.clipboard.readText().then(function (text) {
-          document.getElementById('zone-donnees').value = text;
-          logConsole('success', 'Données collées depuis le presse-papier');
+          const zoneDonnees = document.getElementById('zone-donnees');
+          if (zoneDonnees) {
+            zoneDonnees.value = text;
+            logConsole('success', '📋 Données collées depuis le presse-papier');
+          }
         }).catch(function () {
-          logConsole('error', 'Impossible de lire le presse-papier (permissions)');
+          logConsole('error', '❌ Impossible de lire le presse-papier (permissions refusées)');
         });
       } else {
-        logConsole('error', 'API clipboard non supportée');
+        logConsole('error', '❌ API clipboard non supportée par ce navigateur');
       }
     }
+
     function effacerDonnees() {
-      const area = document.getElementById('zone-donnees');
-      if (area) area.value = '';
-      logConsole('warn', 'Zone données effacée');
+      const zoneDonnees = document.getElementById('zone-donnees');
+      if (zoneDonnees) {
+        zoneDonnees.value = '';
+        logConsole('warn', '🗑️ Zone de données effacée');
+      }
     }
+
     function chargerJSON() {
-      logConsole('success', 'JSON chargé (simulation).');
-      fermerModalJSON();
+      const zoneJSON = document.getElementById('zone-json');
+      if (!zoneJSON || !zoneJSON.value.trim()) {
+        logConsole('error', '❌ Aucun JSON à charger');
+        return;
+      }
+
+      try {
+        const jsonData = JSON.parse(zoneJSON.value);
+        logConsole('success', '✅ JSON chargé et validé avec succès');
+        fermerModalJSON();
+      } catch (error) {
+        logConsole('error', `❌ JSON invalide : ${error.message}`);
+      }
     }
-    function copierJSON() { logConsole('info', 'Copie JSON simulée.'); }
+
+    function copierJSON() {
+      const zoneJSON = document.getElementById('zone-json');
+      if (!zoneJSON || !zoneJSON.value.trim()) {
+        logConsole('error', '❌ Aucun JSON à copier');
+        return;
+      }
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(zoneJSON.value).then(() => {
+          logConsole('success', '📋 JSON copié dans le presse-papier');
+        }).catch(() => {
+          logConsole('error', '❌ Erreur lors de la copie du JSON');
+        });
+      } else {
+        logConsole('error', '❌ API clipboard non supportée');
+      }
+    }
+
     function effacerJSON() {
-      const area = document.getElementById('zone-json');
-      if (area) area.value = '';
-      logConsole('warn', 'Zone JSON effacée');
+      const zoneJSON = document.getElementById('zone-json');
+      if (zoneJSON) {
+        zoneJSON.value = '';
+        logConsole('warn', '🗑️ Zone JSON effacée');
+      }
     }
+
+    // ========================================
+    // GESTION DES GRILLES
+    // ========================================
+
     function creerGrilles() {
       const inv = document.getElementById('inventaire');
       const plateau = document.getElementById('plateau');
+
+      // Création de l'inventaire (15 cases visibles par page)
       if (inv) {
         inv.innerHTML = '';
         for (let i = 0; i < 15; i++) {
           const div = document.createElement('div');
           div.className = 'case';
+          div.setAttribute('data-index', i);
           inv.appendChild(div);
         }
+        logConsole('info', '📦 Inventaire créé (15 cases)');
       }
+
+      // Création du plateau de construction (96 cases - 12x8)
       if (plateau) {
         plateau.innerHTML = '';
         for (let i = 0; i < 96; i++) {
           const div = document.createElement('div');
           div.className = 'case';
+          div.setAttribute('data-index', i);
           plateau.appendChild(div);
         }
+        logConsole('info', '🏗️ Plateau de construction créé (96 cases)');
       }
     }
+
+    // ========================================
+    // FONCTIONS UTILITAIRES
+    // ========================================
+
+    function toggleTheme() {
+      themeActuel = themeActuel === 'sombre' ? 'clair' : 'sombre';
+      document.body.setAttribute('data-theme', themeActuel);
+      logConsole('info', `🎨 Thème changé : ${themeActuel}`);
+    }
+
+    function popupIndisponible() {
+      logConsole('warn', '⚠️ Fonctionnalité non implémentée');
+      alert('Cette fonctionnalité sera disponible dans une future mise à jour ! 🚧');
+    }
+
+    function sauvegarder() {
+      logConsole('info', '💾 Sauvegarde non implémentée (v0.2.0)');
+      popupIndisponible();
+    }
+
+    function exporterDonnees() {
+      logConsole('info', '📤 Export non implémenté (v0.2.0)');
+      popupIndisponible();
+    }
+
+    function supprimerSauvegarde() {
+      logConsole('warn', '🗑️ Suppression non implémentée (v0.2.0)');
+      popupIndisponible();
+    }
+
+    // ========================================
+    // SYSTÈME DE LOGS
+    // ========================================
+
     function logConsole(type, message) {
       const time = new Date().toLocaleTimeString('fr-FR');
       consoleLogs.push({ time, type, message });
-      if (consoleLogs.length > 100) consoleLogs.shift();
+
+      // Limite à 100 logs pour éviter la surcharge mémoire
+      if (consoleLogs.length > 100) {
+        consoleLogs.shift();
+      }
+
+      // Log également dans la console du navigateur pour le debug
+      console.log(`[${time}] [${type.toUpperCase()}] ${message}`);
     }
+
     function capturerErreurs() {
       window.onerror = function (message, source, lineno, colno, error) {
-        logConsole('error', `Erreur: ${message} (Ligne ${lineno})`);
+        logConsole('error', `❌ Erreur JS : ${message} (Ligne ${lineno})`);
         return false;
+      };
+
+      window.onunhandledrejection = function (event) {
+        logConsole('error', `❌ Promise rejetée : ${event.reason}`);
       };
     }
 
+    // ========================================
+    // INITIALISATION
+    // ========================================
+
     window.onload = function () {
+      logConsole('info', '🚀 Initialisation de Jarvis v0.1.5...');
+
+      // Initialisation des composants
       creerGrilles();
       resetOptimisationEtapes();
       updateInfoPage();
       capturerErreurs();
-      logConsole('info', 'Bienvenue sur Jarvis !');
-      ouvrirModalDonnees(); // Affiche automatiquement le pop-up dès l'arrivée sur le site
+
+      // Message de bienvenue
+      logConsole('success', '✅ Jarvis initialisé avec succès !');
+      logConsole('info', '👋 Bienvenue sur Jarvis - Optimisateur de Construction');
+
+      // Affichage automatique du modal de chargement
+      setTimeout(() => {
+        ouvrirModalDonnees();
+      }, 500);
     };
+
+    // ========================================
+    // FERMETURE DES MODALS AU CLIC EXTÉRIEUR
+    // ========================================
+
+    document.addEventListener('click', function (event) {
+      if (event.target.classList.contains('modal') && event.target.classList.contains('actif')) {
+        event.target.classList.remove('actif');
+        logConsole('info', '❌ Modal fermé (clic extérieur)');
+      }
+    });
+
+    // ========================================
+    // GESTION DES TOUCHES CLAVIER
+    // ========================================
+
+    document.addEventListener('keydown', function (event) {
+      // Fermer les modals avec Échap
+      if (event.key === 'Escape') {
+        const modalsActifs = document.querySelectorAll('.modal.actif');
+        modalsActifs.forEach(modal => {
+          modal.classList.remove('actif');
+          logConsole('info', '❌ Modal fermé (touche Échap)');
+        });
+      }
+
+      // Navigation pagination avec flèches
+      if (event.key === 'ArrowLeft') {
+        pagePrecedente();
+      } else if (event.key === 'ArrowRight') {
+        pageSuivante();
+      }
+    });
+
   </script>
 </body>
 
