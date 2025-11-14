@@ -58,6 +58,7 @@ https://latury.github.io/Jarvis-Optimisateur-Construction/
 ---
 
 ## 📂 Structure du projet
+```
 Jarvis-Optimisateur-Construction/
 │
 ├── index.html # Page principale
@@ -69,7 +70,7 @@ Jarvis-Optimisateur-Construction/
 ├── PATCHNOTES.md # Notes de version utilisateurs
 ├── LICENSE # Licence MIT
 └── .gitignore
-
+```
 
 ---
 
