@@ -1,411 +1,464 @@
-/* JARVIS - Gestion de l'interface v0.1.0 | Auteur: Latury */
+/* ========================================
+   JARVIS - Gestion de l'interface
+   Version 0.1.5 | Auteur: Latury
+   ======================================== */
 
 // === VARIABLES GLOBALES ===
-let pageActuelle = 1; // Page actuelle de l'inventaire
-const PAGES_TOTALES = 18; // Nombre total de pages d'inventaire
-const GRILLE_INVENTAIRE_COLONNES = 3;
-const GRILLE_INVENTAIRE_LIGNES = 5;
-const GRILLE_PLATEAU_COLONNES = 12;
-const GRILLE_PLATEAU_LIGNES = 8;
+let pageActuelle = 1;
+let pagesTotal = 1;
+let etapeActuelle = 0;
+let etapes = [];
+let consoleLogs = [];
+let themeActuel = "theme-sombre";
 
-// === INITIALISATION AU CHARGEMENT DE LA PAGE ===
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("🚀 Jarvis - Optimisateur de Construction v0.1.0");
-  console.log("✅ Interface initialisée");
+// Exposer les variables globalement pour synchronisation
+window.pageActuelle = pageActuelle;
+window.pagesTotal = pagesTotal;
 
-  // Initialiser tous les composants
-  initialiserOnglets();
-  initialiserBoutonTheme();
-  initialiserGrilleInventaire();
-  initialiserGrillePlateau();
-  initialiserPaginationInventaire();
-  initialiserBoutons();
+// === SYSTÈME DE LOGS (DOIT ÊTRE DÉFINI EN PREMIER) ===
+function logConsole(type, message) {
+  const time = new Date().toLocaleTimeString("fr-FR");
+  consoleLogs.push({ time, type, message });
+  if (consoleLogs.length > 100) consoleLogs.shift();
 
-  console.log("✅ Tous les composants sont prêts");
+  // Affiche dans la console navigateur avec couleurs
+  const styles = {
+    success: "color: #3ec486; font-weight: bold;",
+    error: "color: #fc424a; font-weight: bold;",
+    warn: "color: #fdcb51; font-weight: bold;",
+    info: "color: #00adb5; font-weight: bold;",
+  };
+  console.log(
+    `%c[${type.toUpperCase()}] ${time}`,
+    styles[type] || styles.info,
+    message
+  );
+}
+
+// === CRÉATION DES GRILLES ===
+function creerGrilles() {
+  // Grille inventaire (3x5 = 15 cases)
+  const inventaireDiv = document.getElementById("inventaire");
+  if (inventaireDiv) {
+    inventaireDiv.innerHTML = "";
+    for (let i = 0; i < 15; i++) {
+      const caseDiv = document.createElement("div");
+      caseDiv.className = "case";
+      caseDiv.setAttribute("data-index", i);
+      inventaireDiv.appendChild(caseDiv);
+    }
+    logConsole("success", "✅ Grille inventaire créée (15 cases)");
+  }
+
+  // Grille plateau (8x12 = 96 cases)
+  const plateauDiv = document.getElementById("plateau");
+  if (plateauDiv) {
+    plateauDiv.innerHTML = "";
+    for (let i = 0; i < 96; i++) {
+      const caseDiv = document.createElement("div");
+      caseDiv.className = "case";
+      caseDiv.setAttribute("data-index", i);
+      plateauDiv.appendChild(caseDiv);
+    }
+    logConsole("success", "✅ Grille plateau créée (96 cases)");
+  }
+}
+
+// === GESTION DE LA PAGINATION ===
+function updateInfoPage() {
+  const elt = document.getElementById("info-page");
+  if (elt) {
+    // Synchroniser avec les valeurs globales
+    pageActuelle = window.pageActuelle || pageActuelle;
+    pagesTotal = window.pagesTotal || pagesTotal;
+    elt.textContent = `Page ${pageActuelle} / ${pagesTotal}`;
+  }
+}
+
+function pagePrecedente() {
+  if (pageActuelle > 1) {
+    pageActuelle--;
+    window.pageActuelle = pageActuelle; // Sync global
+    updateInfoPage();
+    logConsole("info", `📄 Navigation vers la page ${pageActuelle}`);
+  } else {
+    logConsole("warn", "⚠️ Déjà à la première page");
+  }
+}
+
+function pageSuivante() {
+  if (pageActuelle < pagesTotal) {
+    pageActuelle++;
+    window.pageActuelle = pageActuelle; // Sync global
+    updateInfoPage();
+    logConsole("info", `📄 Navigation vers la page ${pageActuelle}`);
+  } else {
+    logConsole("warn", "⚠️ Déjà à la dernière page");
+  }
+}
+
+function allerAPage(numPage) {
+  if (numPage >= 1 && numPage <= pagesTotal) {
+    pageActuelle = numPage;
+    window.pageActuelle = pageActuelle; // Sync global
+    updateInfoPage();
+    logConsole("info", `📄 Saut vers la page ${pageActuelle}`);
+  }
+}
+
+// Fonction centrale pour les boutons de pagination
+function changerPage(direction) {
+  if (direction === -1) {
+    pagePrecedente();
+  } else if (direction === 1) {
+    pageSuivante();
+  }
+  // Rafraîchir l'inventaire après changement
+  if (
+    typeof CogsManager !== "undefined" &&
+    typeof CogsManager.afficherInventaireCogs === "function"
+  ) {
+    CogsManager.afficherInventaireCogs();
+  }
+}
+
+// === GESTION DES ÉTAPES D'OPTIMISATION ===
+function afficherEtape() {
+  const span = document.getElementById("etape-infos");
+  if (!span) return;
+  if (etapes.length === 0) {
+    span.textContent = "Étape 0 / 0 — En attente d'optimisation...";
+  } else {
+    span.textContent = `Étape ${etapeActuelle} / ${etapes.length} — ${
+      etapes[etapeActuelle - 1]
+    }`;
+  }
+}
+
+function etapePrecedente() {
+  if (etapes.length > 0 && etapeActuelle > 1) {
+    etapeActuelle--;
+    afficherEtape();
+    logConsole("info", `⏮️ Étape précédente : ${etapeActuelle}`);
+  } else {
+    logConsole("warn", "⚠️ Aucune étape précédente disponible");
+  }
+}
+
+function etapeSuivante() {
+  if (etapes.length > 0 && etapeActuelle < etapes.length) {
+    etapeActuelle++;
+    afficherEtape();
+    logConsole("info", `⏭️ Étape suivante : ${etapeActuelle}`);
+  } else {
+    logConsole("warn", "⚠️ Aucune étape suivante disponible");
+  }
+}
+
+function startOptimisationEtapes() {
+  etapes = [
+    "🔍 Analyse du plateau...",
+    "🧮 Calcul des positions optimales...",
+    "✅ Application des modifications",
+  ];
+  etapeActuelle = 1;
+  afficherEtape();
+
+  const etapesContenu = document.getElementById("etapes-contenu");
+  if (etapesContenu) {
+    etapesContenu.innerHTML = etapes
+      .map(
+        (e, i) =>
+          `<div style="color: #00adb5; padding: 8px 0;">⏳ Étape ${
+            i + 1
+          } : ${e}</div>`
+      )
+      .join("");
+  }
+
+  logConsole("success", "🚀 Optimisation démarrée");
+}
+
+function resetOptimisationEtapes() {
+  etapes = [];
+  etapeActuelle = 0;
+  afficherEtape();
+  const etapesContenu = document.getElementById("etapes-contenu");
+  if (etapesContenu) {
+    etapesContenu.innerHTML = "<p>⏳ En attente d'optimisation...</p>";
+  }
+  logConsole("info", "🔄 Étapes d'optimisation réinitialisées");
+}
+
+// === GESTION DES MODALS ===
+function ouvrirModalDonnees() {
+  const modal = document.getElementById("modal-donnees");
+  if (modal) {
+    modal.classList.add("actif");
+    logConsole("info", "📂 Modal de chargement des données ouvert");
+  }
+}
+
+function fermerModalDonnees() {
+  const modal = document.getElementById("modal-donnees");
+  if (modal) {
+    modal.classList.remove("actif");
+    logConsole("info", "❌ Modal de chargement des données fermé");
+  }
+}
+
+function ouvrirModalJSON() {
+  const modal = document.getElementById("modal-json");
+  if (modal) {
+    modal.classList.add("actif");
+    logConsole("info", "📋 Modal JSON ouvert");
+  }
+}
+
+function fermerModalJSON() {
+  const modal = document.getElementById("modal-json");
+  if (modal) {
+    modal.classList.remove("actif");
+    logConsole("info", "❌ Modal JSON fermé");
+  }
+}
+
+function afficherAPropos() {
+  const modal = document.getElementById("modal-apropos");
+  if (modal) {
+    modal.classList.add("actif");
+    logConsole("info", "ℹ️ Modal À propos ouvert");
+  }
+}
+
+function fermerAPropos() {
+  const modal = document.getElementById("modal-apropos");
+  if (modal) {
+    modal.classList.remove("actif");
+    logConsole("info", "❌ Modal À propos fermé");
+  }
+}
+
+function afficherLogsConsole() {
+  const consoleDiv = document.getElementById("console-logs");
+  if (!consoleDiv) return;
+
+  if (consoleLogs.length === 0) {
+    consoleDiv.innerHTML =
+      '<p style="color: #a8b2d1; text-align: center; padding: 20px;">📭 Aucun log disponible</p>';
+  } else {
+    consoleDiv.innerHTML = consoleLogs
+      .map(
+        (log) =>
+          `<div class="console-log-ligne">
+        <span class="console-log-time">${log.time}</span>
+        <span class="console-log-type ${
+          log.type
+        }">[${log.type.toUpperCase()}]</span>
+        <span class="console-log-message">${log.message}</span>
+      </div>`
+      )
+      .join("");
+    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+  }
+  const modal = document.getElementById("modal-console");
+  if (modal) {
+    modal.classList.add("actif");
+  }
+}
+
+function copierLogs() {
+  const logs = consoleLogs
+    .map((log) => `[${log.time}] [${log.type.toUpperCase()}] ${log.message}`)
+    .join("\n");
+
+  if (navigator.clipboard) {
+    navigator.clipboard
+      .writeText(logs)
+      .then(() => {
+        logConsole("success", "📋 Logs copiés dans le presse-papier");
+        afficherLogsConsole();
+      })
+      .catch(() => {
+        logConsole("error", "❌ Erreur lors de la copie des logs");
+      });
+  } else {
+    logConsole("error", "❌ API clipboard non supportée");
+  }
+}
+
+function rafraichirConsole() {
+  logConsole("info", "🔄 Console rafraîchie");
+  afficherLogsConsole();
+}
+
+function effacerLogsConsole() {
+  consoleLogs = [];
+  logConsole("info", "🧹 Console effacée");
+  afficherLogsConsole();
+}
+
+function fermerModalConsole() {
+  const modal = document.getElementById("modal-console");
+  if (modal) {
+    modal.classList.remove("actif");
+    logConsole("info", "❌ Console fermée");
+  }
+}
+
+// === GESTION DES MODALS AU CLIC EXTÉRIEUR ===
+document.addEventListener("click", function (event) {
+  if (
+    event.target.classList.contains("modal") &&
+    event.target.classList.contains("actif")
+  ) {
+    event.target.classList.remove("actif");
+    logConsole("info", "❌ Modal fermé (clic extérieur)");
+  }
 });
 
-// === GESTION DES ONGLETS ===
-function initialiserOnglets() {
-  // Récupérer tous les boutons d'onglets
-  const boutonsOnglets = document.querySelectorAll(".onglet");
-
-  // Ajouter un écouteur d'événement sur chaque onglet
-  boutonsOnglets.forEach((bouton) => {
-    bouton.addEventListener("click", function () {
-      // Récupérer le nom de l'onglet à afficher
-      const nomOnglet = this.getAttribute("data-onglet");
-
-      // Changer d'onglet
-      changerOnglet(nomOnglet);
-    });
-  });
-
-  console.log("✅ Système d'onglets initialisé");
-}
-
-function changerOnglet(nomOnglet) {
-  // Retirer la classe "actif" de tous les onglets
-  const tousLesOnglets = document.querySelectorAll(".onglet");
-  tousLesOnglets.forEach((onglet) => {
-    onglet.classList.remove("actif");
-  });
-
-  // Ajouter la classe "actif" à l'onglet cliqué
-  const ongletActif = document.querySelector(`[data-onglet="${nomOnglet}"]`);
-  if (ongletActif) {
-    ongletActif.classList.add("actif");
-  }
-
-  // Masquer toutes les pages
-  const toutesLesPages = document.querySelectorAll(".page");
-  toutesLesPages.forEach((page) => {
-    page.classList.remove("active");
-  });
-
-  // Afficher la page correspondante
-  const pageAfficher = document.getElementById(`page-${nomOnglet}`);
-  if (pageAfficher) {
-    pageAfficher.classList.add("active");
-  }
-
-  console.log(`📄 Onglet changé : ${nomOnglet}`);
-}
-
-// === GESTION DU THÈME CLAIR/SOMBRE ===
-function initialiserBoutonTheme() {
-  const boutonTheme = document.getElementById("bouton-theme");
-
-  if (boutonTheme) {
-    boutonTheme.addEventListener("click", function () {
-      changerTheme();
+// === GESTION DES TOUCHES CLAVIER ===
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") {
+    const modalsActifs = document.querySelectorAll(".modal.actif");
+    modalsActifs.forEach((modal) => {
+      modal.classList.remove("actif");
+      logConsole("info", "❌ Modal fermé (touche Échap)");
     });
   }
 
-  // Charger le thème sauvegardé (si disponible)
-  const themeSauvegarde = localStorage.getItem("theme");
-  if (themeSauvegarde) {
-    document.body.className = themeSauvegarde;
+  if (event.key === "ArrowLeft") {
+    changerPage(-1);
+  } else if (event.key === "ArrowRight") {
+    changerPage(1);
   }
+});
 
-  console.log("✅ Système de thème initialisé");
-}
-
-function changerTheme() {
+// === GESTION DU THÈME SOMBRE/CLAIR ===
+function toggleTheme() {
   const body = document.body;
 
-  // Basculer entre les thèmes
-  if (body.classList.contains("theme-sombre")) {
+  if (themeActuel === "theme-sombre") {
     body.classList.remove("theme-sombre");
     body.classList.add("theme-clair");
+    themeActuel = "theme-clair";
     localStorage.setItem("theme", "theme-clair");
-    console.log("☀️ Thème clair activé");
+    logConsole("success", "☀️ Thème clair activé");
   } else {
     body.classList.remove("theme-clair");
     body.classList.add("theme-sombre");
+    themeActuel = "theme-sombre";
     localStorage.setItem("theme", "theme-sombre");
-    console.log("🌙 Thème sombre activé");
+    logConsole("success", "🌙 Thème sombre activé");
   }
+
+  actualiseIconeTheme();
 }
 
-// === GÉNÉRATION DE LA GRILLE D'INVENTAIRE (3x5) ===
-function initialiserGrilleInventaire() {
-  const conteneurGrille = document.getElementById("grille-inventaire");
-
-  if (!conteneurGrille) {
-    console.warn("⚠️ Grille inventaire introuvable");
-    return;
+function actualiseIconeTheme() {
+  const icone = document.getElementById("theme-icon");
+  if (icone) {
+    icone.textContent = themeActuel === "theme-sombre" ? "☀️" : "🌙";
   }
-
-  // Vider le conteneur
-  conteneurGrille.innerHTML = "";
-
-  // Créer les 15 cases (3 colonnes x 5 lignes)
-  const nombreCases = GRILLE_INVENTAIRE_COLONNES * GRILLE_INVENTAIRE_LIGNES;
-
-  for (let i = 0; i < nombreCases; i++) {
-    const caseDiv = document.createElement("div");
-    caseDiv.className = "case-inventaire";
-    caseDiv.setAttribute("data-id", i);
-
-    // Ajouter un événement au clic (pour plus tard)
-    caseDiv.addEventListener("click", function () {
-      console.log(`📦 Case inventaire cliquée : ${i}`);
-    });
-
-    conteneurGrille.appendChild(caseDiv);
-  }
-
-  console.log(`✅ Grille inventaire générée (${nombreCases} cases)`);
-}
-
-// === GÉNÉRATION DE LA GRILLE DU PLATEAU (12x8) ===
-function initialiserGrillePlateau() {
-  const conteneurGrille = document.getElementById("grille-plateau");
-
-  if (!conteneurGrille) {
-    console.warn("⚠️ Grille plateau introuvable");
-    return;
-  }
-
-  // Vider le conteneur
-  conteneurGrille.innerHTML = "";
-
-  // Créer les 96 cases (12 colonnes x 8 lignes)
-  const nombreCases = GRILLE_PLATEAU_COLONNES * GRILLE_PLATEAU_LIGNES;
-
-  for (let ligne = 0; ligne < GRILLE_PLATEAU_LIGNES; ligne++) {
-    for (let colonne = 0; colonne < GRILLE_PLATEAU_COLONNES; colonne++) {
-      const caseDiv = document.createElement("div");
-      caseDiv.className = "case-plateau";
-      caseDiv.setAttribute("data-ligne", ligne);
-      caseDiv.setAttribute("data-colonne", colonne);
-
-      // Ajouter un événement au clic (pour plus tard)
-      caseDiv.addEventListener("click", function () {
-        console.log(`🔧 Case plateau cliquée : [${ligne}, ${colonne}]`);
-      });
-
-      conteneurGrille.appendChild(caseDiv);
-    }
-  }
-
-  console.log(`✅ Grille plateau générée (${nombreCases} cases)`);
-}
-
-// === GESTION DE LA PAGINATION DE L'INVENTAIRE ===
-function initialiserPaginationInventaire() {
-  const boutonPrecedent = document.getElementById("inventaire-precedent");
-  const boutonSuivant = document.getElementById("inventaire-suivant");
-  const affichagePageActuelle = document.getElementById("page-actuelle");
-  const affichagePagesTotales = document.getElementById("pages-totales");
-
-  // Afficher les valeurs initiales
-  if (affichagePageActuelle) {
-    affichagePageActuelle.textContent = pageActuelle;
-  }
-
-  if (affichagePagesTotales) {
-    affichagePagesTotales.textContent = PAGES_TOTALES;
-  }
-
-  // Bouton page précédente
-  if (boutonPrecedent) {
-    boutonPrecedent.addEventListener("click", function () {
-      if (pageActuelle > 1) {
-        pageActuelle--;
-        mettreAJourAffichagePage();
-        console.log(`⬅️ Page précédente : ${pageActuelle}`);
-      }
-    });
-  }
-
-  // Bouton page suivante
-  if (boutonSuivant) {
-    boutonSuivant.addEventListener("click", function () {
-      if (pageActuelle < PAGES_TOTALES) {
-        pageActuelle++;
-        mettreAJourAffichagePage();
-        console.log(`➡️ Page suivante : ${pageActuelle}`);
-      }
-    });
-  }
-
-  // Mettre à jour l'état des boutons
-  mettreAJourEtatBoutonsPagination();
-
-  console.log("✅ Système de pagination initialisé");
-}
-
-function mettreAJourAffichagePage() {
-  const affichagePageActuelle = document.getElementById("page-actuelle");
-
-  if (affichagePageActuelle) {
-    affichagePageActuelle.textContent = pageActuelle;
-  }
-
-  // Mettre à jour l'état des boutons (activer/désactiver)
-  mettreAJourEtatBoutonsPagination();
-}
-
-function mettreAJourEtatBoutonsPagination() {
-  const boutonPrecedent = document.getElementById("inventaire-precedent");
-  const boutonSuivant = document.getElementById("inventaire-suivant");
-
-  // Désactiver le bouton précédent si on est à la page 1
-  if (boutonPrecedent) {
-    boutonPrecedent.disabled = pageActuelle === 1;
-  }
-
-  // Désactiver le bouton suivant si on est à la dernière page
-  if (boutonSuivant) {
-    boutonSuivant.disabled = pageActuelle === PAGES_TOTALES;
-  }
-}
-
-// === INITIALISATION DES BOUTONS D'ACTION ===
-function initialiserBoutons() {
-  // Bouton "Optimiser le placement"
-  const boutonOptimiser = document.getElementById("bouton-optimiser");
-  if (boutonOptimiser) {
-    boutonOptimiser.addEventListener("click", function () {
-      console.log("🚀 Optimisation lancée");
-      ajouterLog("INFO", "Optimisation du placement lancée...");
-      // La fonction d'optimisation sera dans optimiseur.js
-    });
-  }
-
-  // Bouton "Réinitialiser"
-  const boutonReinitialiser = document.getElementById("bouton-reinitialiser");
-  if (boutonReinitialiser) {
-    boutonReinitialiser.addEventListener("click", function () {
-      console.log("🔄 Réinitialisation du plateau");
-      ajouterLog("INFO", "Plateau réinitialisé");
-      reinitialiserPlateau();
-    });
-  }
-
-  // Bouton "Exporter"
-  const boutonExporter = document.getElementById("bouton-exporter");
-  if (boutonExporter) {
-    boutonExporter.addEventListener("click", function () {
-      console.log("💾 Export des données");
-      ajouterLog("INFO", "Export des données demandé");
-    });
-  }
-
-  // Bouton "Charger les données"
-  const boutonChargerDonnees = document.getElementById(
-    "bouton-charger-donnees"
-  );
-  if (boutonChargerDonnees) {
-    boutonChargerDonnees.addEventListener("click", function () {
-      console.log("⬆️ Chargement des données");
-      // La fonction de chargement sera dans chargeur.js
-    });
-  }
-
-  // Bouton "Effacer" (zone de texte)
-  const boutonEffacerDonnees = document.getElementById(
-    "bouton-effacer-donnees"
-  );
-  if (boutonEffacerDonnees) {
-    boutonEffacerDonnees.addEventListener("click", function () {
-      const zoneDonnees = document.getElementById("zone-donnees");
-      if (zoneDonnees) {
-        zoneDonnees.value = "";
-        console.log("🗑️ Zone de données effacée");
-      }
-    });
-  }
-
-  // Bouton "Effacer les logs"
-  const boutonEffacerLogs = document.getElementById("bouton-effacer-logs");
-  if (boutonEffacerLogs) {
-    boutonEffacerLogs.addEventListener("click", function () {
-      const zoneLogs = document.getElementById("zone-logs");
-      if (zoneLogs) {
-        zoneLogs.innerHTML = "";
-        console.log("🗑️ Logs effacés");
-      }
-    });
-  }
-
-  // Bouton "Exporter les logs"
-  const boutonExporterLogs = document.getElementById("bouton-exporter-logs");
-  if (boutonExporterLogs) {
-    boutonExporterLogs.addEventListener("click", function () {
-      console.log("💾 Export des logs");
-      exporterLogs();
-    });
-  }
-
-  console.log("✅ Boutons d'action initialisés");
 }
 
 // === FONCTIONS UTILITAIRES ===
-
-// Réinitialiser le plateau
-function reinitialiserPlateau() {
-  const cases = document.querySelectorAll(".case-plateau");
-  cases.forEach((caseDiv) => {
-    caseDiv.innerHTML = "";
-    caseDiv.classList.remove("occupe");
-  });
+function popupIndisponible() {
+  alert("Cette fonctionnalité sera disponible dans une prochaine version !");
+  logConsole("info", "ℹ️ Fonctionnalité non disponible");
 }
 
-// Ajouter un log dans la zone de logs
-function ajouterLog(type, message) {
-  const zoneLogs = document.getElementById("zone-logs");
+function optimiser() {
+  logConsole("warn", "⚠️ Fonction optimiser à implémenter");
+  startOptimisationEtapes();
+}
 
-  if (!zoneLogs) {
-    return;
+function reinitialiser() {
+  logConsole("info", "🔄 Réinitialisation...");
+  resetOptimisationEtapes();
+}
+
+function sauvegarder() {
+  logConsole("warn", "⚠️ Fonction sauvegarder à implémenter");
+}
+
+function exporterDonnees() {
+  logConsole("warn", "⚠️ Fonction exporterDonnees à implémenter");
+}
+
+function supprimerSauvegarde() {
+  logConsole("warn", "⚠️ Fonction supprimerSauvegarde à implémenter");
+}
+
+function chargerJSON() {
+  logConsole("warn", "⚠️ Fonction chargerJSON à implémenter");
+}
+
+function copierJSON() {
+  logConsole("warn", "⚠️ Fonction copierJSON à implémenter");
+}
+
+function effacerJSON() {
+  const zoneJSON = document.getElementById("zone-json");
+  if (zoneJSON) {
+    zoneJSON.value = "";
+    logConsole("info", "🧹 Zone JSON effacée");
   }
-
-  // Créer l'entrée de log
-  const logEntree = document.createElement("p");
-  logEntree.className = "log-entree";
-
-  // Horodatage
-  const maintenant = new Date();
-  const heures = String(maintenant.getHours()).padStart(2, "0");
-  const minutes = String(maintenant.getMinutes()).padStart(2, "0");
-  const secondes = String(maintenant.getSeconds()).padStart(2, "0");
-  const horodatage = `[${heures}:${minutes}:${secondes}]`;
-
-  // Type de log
-  const typeSpan = document.createElement("span");
-  typeSpan.className = `type ${type.toLowerCase()}`;
-  typeSpan.textContent = type;
-
-  // Message
-  const messageTexte = document.createTextNode(` ${message}`);
-
-  // Assembler
-  const timestampSpan = document.createElement("span");
-  timestampSpan.className = "timestamp";
-  timestampSpan.textContent = horodatage;
-
-  logEntree.appendChild(timestampSpan);
-  logEntree.appendChild(document.createTextNode(" "));
-  logEntree.appendChild(typeSpan);
-  logEntree.appendChild(messageTexte);
-
-  // Ajouter à la zone de logs
-  zoneLogs.appendChild(logEntree);
-
-  // Scroller automatiquement vers le bas
-  zoneLogs.scrollTop = zoneLogs.scrollHeight;
 }
 
-// Exporter les logs
-function exporterLogs() {
-  const zoneLogs = document.getElementById("zone-logs");
-
-  if (!zoneLogs) {
-    return;
+function effacerDonnees() {
+  const zoneDonnees = document.getElementById("zone-donnees");
+  if (zoneDonnees) {
+    zoneDonnees.value = "";
+    logConsole("info", "🧹 Zone de données effacée");
   }
-
-  // Récupérer le texte des logs
-  const texteLogs = zoneLogs.innerText;
-
-  // Créer un blob (fichier en mémoire)
-  const blob = new Blob([texteLogs], { type: "text/plain" });
-
-  // Créer un lien de téléchargement
-  const lien = document.createElement("a");
-  lien.href = URL.createObjectURL(blob);
-  lien.download = `jarvis-logs-${Date.now()}.txt`;
-
-  // Déclencher le téléchargement
-  lien.click();
-
-  console.log("💾 Logs exportés");
-  ajouterLog("INFO", "Logs exportés avec succès");
 }
 
-// Exposer certaines fonctions globalement pour les autres fichiers JS
-window.Jarvis = {
-  ajouterLog: ajouterLog,
-  changerOnglet: changerOnglet,
-  pageActuelle: pageActuelle,
+function collerDonnees() {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard
+      .readText()
+      .then(function (text) {
+        document.getElementById("zone-donnees").value = text;
+        logConsole("success", "✅ Données collées depuis le presse-papier");
+      })
+      .catch(function (e) {
+        logConsole("error", "❌ Impossible de lire le presse-papier");
+        alert(
+          "Impossible de lire le presse-papier. Autorisez l'accès ou utilisez Ctrl+V."
+        );
+      });
+  } else {
+    alert(
+      "Votre navigateur ne permet pas le collage automatique.\nUtilisez Ctrl+V."
+    );
+    logConsole("warn", "⚠️ Collage automatique non supporté");
+  }
+}
+
+// === INITIALISATION AU CHARGEMENT ===
+window.onload = function () {
+  logConsole("info", "🚀 Initialisation de Jarvis v0.1.5...");
+
+  // Récupérer le thème sauvegardé
+  const themeSauvegarde = localStorage.getItem("theme") || "theme-sombre";
+  document.body.classList.add(themeSauvegarde);
+  themeActuel = themeSauvegarde;
+  actualiseIconeTheme();
+
+  // Initialisation des composants
+  creerGrilles();
+  resetOptimisationEtapes();
+  updateInfoPage();
+
+  // NE PAS charger les données de test au démarrage
+  // if (typeof CogsManager !== "undefined" && typeof CogsManager.chargerDonneesTest === "function") {
+  //   CogsManager.chargerDonneesTest();
+  // }
+
+  logConsole("success", "✅ Jarvis initialisé avec succès !");
+  logConsole("info", "ℹ️ Bienvenue sur Jarvis - Optimisateur de Construction");
+
+  // Ouvrir automatiquement le modal de chargement des données
+  setTimeout(ouvrirModalDonnees, 500);
 };

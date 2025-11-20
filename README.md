@@ -3,7 +3,7 @@
 # 🔧 Jarvis - Optimisateur de Construction
 ### Optimiseur de placement de Cogs pour Legend of Idleon
 
-[![Version](https://img.shields.io/badge/version-0.1.5-blue.svg)](https://github.com/Latury/Jarvis-Optimisateur-Construction/releases)
+[![Version](https://img.shields.io/badge/version-0.1.6-blue.svg)](https://github.com/Latury/Jarvis-Optimisateur-Construction/releases)
 [![Statut](https://img.shields.io/badge/statut-en%20développement-yellow.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/demo-live-success.svg)](https://latury.github.io/Jarvis-Optimisateur-Construction/)
@@ -18,17 +18,22 @@ Il utilise un algorithme génétique pour maximiser taux de construction, XP, et
 
 ---
 
-## ✨ Fonctionnalités - v0.1.5 (Stabilisation)
+## ✨ Fonctionnalités - v0.1.6 (Robustesse)
 - ✅ Structure projet complète et ressources graphiques organisées
 - ✅ Interface web avec gestion des modals et logs console
-- ✅ Chargement automatique du modal « Chargeur de données »
-- ✅ Pagination d'inventaire avec navigation clavier (flèches ←/→)
-- ✅ Système d'étapes dynamiques pour l'optimisation
+- ✅ **Drag & drop de fichiers JSON/TXT** 🆕
+- ✅ **Notifications visuelles en temps réel** 🆕
+- ✅ **Export des données en JSON** 🆕
+- ✅ **Lecture automatique du presse-papier** 🆕
+- ✅ Chargement et parsing des données Idleon
+- ✅ Affichage de l'inventaire (pagination, navigation clavier)
+- ✅ Affichage du plateau avec cogs placés
+- ✅ Validation stricte des données (taille, format, sécurité)
+- ✅ Gestion d'erreurs robuste avec messages explicites
+- ✅ Lazy loading des images pour performances
 - ✅ Console de logs interactive avec copie et effacement
-- ✅ Fermeture des modals au clic extérieur ou touche Échap
-- ✅ Validation des données JSON avant chargement
-- ✅ Gestion améliorée des erreurs JavaScript
-- ✅ Code optimisé et documenté
+- ✅ Fermeture des modals (clic extérieur, Échap)
+- ✅ Code optimisé, documenté et modulaire
 
 ---
 
@@ -42,6 +47,7 @@ Il utilise un algorithme génétique pour maximiser taux de construction, XP, et
 git clone https://github.com/Latury/Jarvis-Optimisateur-Construction.git
 cd Jarvis-Optimisateur-Construction
 
+
 Ouvrir `index.html` dans un navigateur moderne
 
 ### Version en ligne
@@ -50,10 +56,10 @@ https://latury.github.io/Jarvis-Optimisateur-Construction/
 ---
 
 ## 🛠️ Technologies
-- HTML5, CSS3 (thèmes clair/sombre en préparation)
-- JavaScript ES6+
+- HTML5, CSS3 (variables CSS, animations)
+- JavaScript ES6+ (modules, async/await)
 - Algorithmes génétiques (en préparation)
-- Git & GitHub
+- Git & GitHub (versioning, GitHub Pages)
 
 ---
 
@@ -62,15 +68,28 @@ https://latury.github.io/Jarvis-Optimisateur-Construction/
 Jarvis-Optimisateur-Construction/
 │
 ├── index.html # Page principale
-├── css/ # Styles, thèmes
-├── js/ # Scripts JS
-├── ressources/icones/ # Icônes (Cogs, chapeaux, tête)
-├── README.md # Documentation principale
-├── CHANGELOG.md # Historique des versions
-├── PATCHNOTES.md # Notes de version utilisateurs
+├── css/
+│ ├── style.css # Styles généraux
+│ └── themes.css # Thèmes clair/sombre
+├── js/
+│ ├── principal.js # Point d'entrée
+│ ├── cogs-manager.js # Gestion des Cogs (v0.1.6)
+│ ├── chargeur.js # Chargement données (v0.1.6)
+│ ├── interface.js # Gestion UI
+│ ├── optimiseur.js # Algorithme (en dev)
+│ └── cogs-data.js # Base de données Cogs
+├── ressources/icones/
+│ ├── engrenages/ # Icônes des Cogs
+│ ├── chapeaux/ # Icônes des chapeaux
+│ └── tete/ # Icône principale
+├── README.md # Documentation
+├── CHANGELOG.md # Historique versions
+├── PATCHNOTES.md # Notes utilisateurs
 ├── LICENSE # Licence MIT
 └── .gitignore
 ```
+
+
 
 ---
 
@@ -81,11 +100,33 @@ Jarvis-Optimisateur-Construction/
 - **Flèches ←/→** : Naviguer dans la pagination
 
 ### Fonctionnalités disponibles
-- 📂 Charger des données de sauvegarde
-- 📋 Copier/coller depuis le presse-papier
+- 📂 Charger des données de sauvegarde (coller ou fichier)
+- 🖱️ Drag & drop de fichiers JSON/TXT
+- 📋 Lecture automatique du presse-papier
+- 💾 Export des données en JSON
+- 📊 Affichage inventaire et plateau
 - 🗑️ Effacer les données
-- 📊 Voir les logs console
+- 📜 Voir les logs console
 - 📋 Copier les logs pour debug
+
+---
+
+## 🆕 Nouveautés v0.1.6
+
+### Drag & Drop
+Glissez-déposez vos fichiers directement dans la zone de texte !
+
+### Notifications
+Messages visuels élégants pour chaque action (succès, erreur, info)
+
+### Export
+Exportez vos configurations en JSON avec horodatage
+
+### Robustesse
+- Validation JSON corrigée (bug majeur résolu)
+- Parsing Idleon fonctionnel (inventaire + plateau)
+- Gestion d'erreurs complète
+- Performances optimisées
 
 ---
 
@@ -103,9 +144,10 @@ Vous êtes les bienvenus à contribuer !
 ## 📝 Roadmap
 - ✅ v0.1.0 : Configuration initiale et structure du projet
 - ✅ v0.1.5 : Stabilisation et corrections de bugs
-- 🚧 v0.2.0 : Interface complète, pagination améliorée, thèmes
-- 📅 v0.3.0 : Chargement des données de sauvegarde, visualisation plateau
-- 📅 v0.4.0 : Algorithme d'optimisation génétique complet
+- ✅ v0.1.6 : Robustesse, drag & drop, notifications, export
+- 🚧 v0.2.0 : Interface avec onglets, mode clair/sombre complet
+- 📅 v0.3.0 : Algorithme d'optimisation génétique
+- 📅 v0.4.0 : Sauvegarde persistante, configurations multiples
 - 📅 v1.0.0 : Version stable et complète
 
 ---
@@ -119,7 +161,7 @@ Vous êtes les bienvenus à contribuer !
 ---
 
 ## 👤 Auteur
-Latury — latury57@gmail.com
+Latury — [latury57@gmail.com](mailto:latury57@gmail.com)
 
 ---
 
@@ -132,3 +174,6 @@ Latury — latury57@gmail.com
 <div align="center">
 **Fait avec ❤️ pour la communauté Idleon**
 </div>
+
+
+

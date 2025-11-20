@@ -8,11 +8,61 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 ## [Non publié]
 
 ### Prochaines fonctionnalités prévues
-- Interface HTML complète avec onglets de navigation
-- Système de chargement de données de sauvegarde avancé
 - Algorithme d'optimisation génétique complet
 - Affichage des statistiques avant/après optimisation
 - Mode clair/sombre complet
+- Système de sauvegarde persistante
+
+## [0.1.6] - 2025-11-20
+
+### 🚀 Version majeure - Robustesse et nouvelles fonctionnalités
+
+#### Ajouté
+- Support complet du drag & drop pour les fichiers JSON/TXT
+- Notifications visuelles en temps réel (succès, erreur, info)
+- Export des données en JSON avec horodatage
+- Lecture automatique du presse-papier (avec fallback manuel)
+- Lazy loading des images pour meilleures performances
+- Image de fallback pour les icônes manquantes
+- Mode debug configurable (CONFIG.DEBUG_MODE)
+- Fonction d'obtention des statistiques (inventaire et plateau)
+- Fonction de réinitialisation des données
+- Validation stricte de la taille des fichiers (limite 50 MB)
+- Timeout de sécurité de 30 secondes pour le chargement
+- Extensions de fichiers autorisées (.json, .txt uniquement)
+- Messages d'erreur contextuels avec position de l'erreur
+- Statistiques affichées après chargement (nombre de cogs, etc.)
+- Vérification automatique de COGS_DATABASE au démarrage
+
+#### Modifié
+- Validation JSON complètement refactorisée (plus fiable)
+- Parsing des données Idleon grandement amélioré
+- Table de correspondance des Cogs mise à jour (12 IDs reconnus)
+- Structure du code modulaire avec configuration centralisée
+- Gestion d'erreurs robuste avec try/catch partout
+- Messages de logs plus détaillés et informatifs
+- Interface HTML améliorée avec zones de drop stylisées
+- Modal de chargement enrichi avec upload de fichier intégré
+- Fonction afficherInventaireCogs optimisée
+- Fonction afficherPlateauCogs avec tri par position
+
+#### Corrigé
+- **BUG MAJEUR** : Validation JSON qui rejetait les données valides (accolades dans les strings)
+- Parsing du plateau (CogM) maintenant fonctionnel
+- Correspondance des IDs Cogs corrigée (Cog3A00, Cog3B0, etc.)
+- Gestion des images manquantes (Deckered8_Ultimate → DeckeredB_Ultimate)
+- Synchronisation des variables globales pageActuelle/pagesTotal
+- Protection contre localStorage désactivé (navigation privée)
+- Gestion des erreurs de lecture de fichier
+- Gestion des Promise rejetées
+- Protection contre les éléments DOM manquants
+
+#### Sécurité
+- Sanitisation basique des données (suppression de scripts dangereux)
+- Validation de la structure JSON avant traitement
+- Limite de taille de fichier pour éviter surcharge mémoire
+- Timeout pour éviter blocage du navigateur
+- Vérification des extensions de fichiers autorisées
 
 ## [0.1.5] - 2025-11-15
 
@@ -59,22 +109,12 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - Structure de base du projet
 - Dossiers organisés pour CSS, JavaScript et ressources
 - Fichiers de documentation professionnels (README, CHANGELOG, PATCHNOTES)
-- Ressources graphiques importées :
-  - Icônes des Cogs (engrenages)
-  - Icônes des chapeaux
-  - Icône de la tête
-  - Fichiers d'archives de référence
+- Ressources graphiques importées
 - Configuration Git et GitHub
 - Système de versioning sémantique (SemVer)
 - Structure HTML de base prévue
-- Fichiers JavaScript vides préparés :
-  - principal.js (point d'entrée)
-  - chargeur.js (gestion des données)
-  - optimiseur.js (algorithme d'optimisation)
-  - interface.js (gestion de l'UI)
-- Fichiers CSS vides préparés :
-  - style.css (styles généraux)
-  - themes.css (mode clair/sombre)
+- Fichiers JavaScript vides préparés
+- Fichiers CSS vides préparés
 
 #### Configuration
 - Dépôt GitHub créé et configuré
@@ -105,12 +145,11 @@ Ce projet utilise le Semantic Versioning (SemVer) :
 Exemples :
 - 0.1.0 : Développement initial
 - 0.1.5 : Corrections et améliorations mineures
+- 0.1.6 : Corrections majeures et nouvelles fonctionnalités
 - 0.2.0 : Ajout de fonctionnalités (en développement)
 - 1.0.0 : Première version stable
-- 1.1.0 : Ajout de nouvelles fonctionnalités
-- 1.1.1 : Correction de bugs
-- 2.0.0 : Changements majeurs (breaking changes)
 
-[Non publié]: https://github.com/Latury/Jarvis-Optimisateur-Construction/compare/v0.1.5...HEAD
+[Non publié]: https://github.com/Latury/Jarvis-Optimisateur-Construction/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/Latury/Jarvis-Optimisateur-Construction/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/Latury/Jarvis-Optimisateur-Construction/compare/v0.1.0...v0.1.5
 [0.1.0]: https://github.com/Latury/Jarvis-Optimisateur-Construction/releases/tag/v0.1.0

@@ -1,4 +1,7 @@
-/* JARVIS v0.1.0 | Latury */
+// ========================================
+// Jarvis - Optimisateur de Construction
+// Version 0.1.5
+// ========================================
 
 const VERSION_APP = "0.1.0";
 const NOM_APP = "Jarvis - Optimisateur de Construction";

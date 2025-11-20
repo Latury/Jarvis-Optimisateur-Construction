@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jarvis - Optimisateur de Construction v0.1.0</title>
+  <title>Jarvis - Optimisateur de Construction v0.1.6</title>
   <link rel="icon" type="image/png" href="ressources/icones/tete/head.png">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/themes.css">
   <style>
     .grille {
       display: grid;
@@ -31,6 +32,9 @@
       width: 100%;
       height: 100%;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .case:hover {
@@ -58,6 +62,78 @@
     .modal-fermer {
       user-select: none;
     }
+
+    /* Styles pour les notifications */
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    /* Zone de drag & drop améliorée */
+    #zone-donnees {
+      min-height: 200px;
+      transition: all 0.3s ease;
+    }
+
+    #zone-donnees.drag-over {
+      border: 2px dashed #00adb5 !important;
+      background: rgba(0, 173, 181, 0.1) !important;
+    }
+
+    /* Upload de fichier stylisé */
+    .file-upload {
+      margin: 15px 0;
+      padding: 15px;
+      border: 2px dashed var(--couleur-bordure, #1f4068);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-upload:hover {
+      border-color: var(--couleur-primaire, #00adb5);
+      background: rgba(0, 173, 181, 0.05);
+    }
+
+    .file-upload input[type="file"] {
+      display: none;
+    }
+
+    .file-upload-label {
+      cursor: pointer;
+      color: var(--couleur-texte-secondaire, #a8b2d1);
+      font-size: 0.95em;
+    }
+
+    /* Stats en bas du modal */
+    .modal-stats {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(0, 173, 181, 0.1);
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: var(--couleur-texte-secondaire, #a8b2d1);
+    }
   </style>
 </head>
 
@@ -72,58 +148,98 @@
       <div class="menu-dropdown">
         <button class="btn-header">📋 Menu</button>
         <div class="dropdown-contenu">
-          <!-- <button class="btn-dropdown" onclick="ouvrirModalDonnees()">📥 Chargeur de données</button> -->
+          <button class="btn-dropdown" onclick="ouvrirModalDonnees()">📥 Chargeur de données</button>
           <button class="btn-dropdown" onclick="ouvrirModalJSON()">📄 Chargeur de JSON</button>
           <button class="btn-dropdown" onclick="optimiser()">🚀 Optimiser le placement</button>
           <button class="btn-dropdown btn-sec" onclick="reinitialiser()">🔄 Réinitialiser</button>
           <div style="border-top: 1px solid #1f4068; margin: 5px 0;"></div>
           <button class="btn-dropdown" onclick="sauvegarder()">💾 Sauvegarder</button>
-          <button class="btn-dropdown" onclick="exporterDonnees()">📤 Exporter la sauvegarde</button>
+          <button class="btn-dropdown" onclick="ChargeurJarvis.exporterDonnees()">📤 Exporter</button>
           <button class="btn-dropdown btn-sec" onclick="supprimerSauvegarde()">🗑️ Supprimer la sauvegarde</button>
         </div>
       </div>
       <div class="menu-dropdown">
         <button class="btn-header">⚙️ Options</button>
         <div class="dropdown-contenu">
-          <button class="btn-dropdown" onclick="toggleTheme()"><span>🌙</span>Thème Clair/Sombre</button>
-          <button class="btn-dropdown" onclick="popupIndisponible()"><span>🖥️</span>Paramètres d'affichage</button>
+          <button class="btn-dropdown" onclick="toggleTheme()" id="btn-theme">
+            <span id="theme-icon">🌙</span>Mode Clair/Sombre
+          </button>
+          <button class="btn-dropdown" onclick="popupIndisponible()">
+            <span>🖥️</span>Paramètres d'affichage
+          </button>
         </div>
       </div>
       <div class="menu-dropdown">
         <button class="btn-header">❓ Aide</button>
         <div class="dropdown-contenu">
+          <button class="btn-dropdown" onclick="window.open('https://idleon.wiki/wiki/Construction', '_blank')">
+            <span>📖</span>Wiki Idleon
+          </button>
           <button class="btn-dropdown"
-            onclick="window.open('https://idleon.wiki/wiki/Construction', '_blank')"><span>📖</span>Wiki Idleon</button>
-          <button class="btn-dropdown"
-            onclick="window.open('https://github.com/Latury/Jarvis-Optimisateur-Construction', '_blank')"><span>💻</span>GitHub</button>
-          <button class="btn-dropdown" onclick="afficherAPropos()"><span>ℹ️</span>À propos</button>
+            onclick="window.open('https://github.com/Latury/Jarvis-Optimisateur-Construction', '_blank')">
+            <span>💻</span>GitHub
+          </button>
+          <button class="btn-dropdown" onclick="afficherAPropos()">
+            <span>ℹ️</span>À propos
+          </button>
         </div>
       </div>
       <div class="menu-dropdown">
         <button class="btn-header">📜 Logs</button>
         <div class="dropdown-contenu">
-          <button class="btn-dropdown" onclick="afficherLogsConsole()"><span>📋</span>Console de développement</button>
-          <button class="btn-dropdown btn-sec" onclick="effacerLogsConsole()"><span>🗑️</span>Effacer la
-            console</button>
+          <button class="btn-dropdown" onclick="afficherLogsConsole()">
+            <span>📋</span>Console de développement
+          </button>
+          <button class="btn-dropdown btn-sec" onclick="effacerLogsConsole()">
+            <span>🗑️</span>Effacer la console
+          </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Modals -->
+  <!-- Modal Chargeur de données (amélioré) -->
   <div id="modal-donnees" class="modal">
     <div class="modal-contenu">
       <span class="modal-fermer" onclick="fermerModalDonnees()">&times;</span>
       <h2>📥 Chargeur de données</h2>
-      <p style="color: #a8b2d1;">Importez vos données de sauvegarde Idleon</p>
-      <textarea id="zone-donnees" rows="10" placeholder="Collez vos données ici..."></textarea>
+      <p style="color: #a8b2d1;">
+        Collez vos données de sauvegarde Idleon ou déposez un fichier JSON
+      </p>
+
+      <!-- Zone de texte avec support drag & drop -->
+      <textarea id="zone-donnees" rows="10"
+        placeholder="Collez vos données ici ou déposez un fichier JSON/TXT..."></textarea>
+
+      <!-- Upload de fichier -->
+      <div class="file-upload" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept=".json,.txt" onchange="ChargeurJarvis.chargerFichier(event)">
+        <label class="file-upload-label">
+          📁 Cliquez ici ou déposez un fichier (.json, .txt)
+        </label>
+      </div>
+
+      <!-- Actions -->
       <div class="actions-modal">
-        <button onclick="chargerDonnees()">⬆️ Charger</button>
-        <button onclick="collerDonnees()">📋 Coller</button>
-        <button class="btn-sec" onclick="effacerDonnees()">🗑️ Effacer</button>
+        <button onclick="ChargeurJarvis.chargerDonnees()">
+          ⬆️ Charger
+        </button>
+        <button onclick="ChargeurJarvis.chargerDepuisPressePapier()">
+          📋 Coller depuis presse-papier
+        </button>
+        <button class="btn-sec" onclick="ChargeurJarvis.viderZoneDonnees()">
+          🗑️ Vider
+        </button>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="modal-stats" id="modal-stats-zone">
+        💡 Astuce : Vous pouvez glisser-déposer un fichier directement sur la zone de texte
       </div>
     </div>
   </div>
+
+  <!-- Modal JSON -->
   <div id="modal-json" class="modal">
     <div class="modal-contenu">
       <span class="modal-fermer" onclick="fermerModalJSON()">&times;</span>
@@ -137,6 +253,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Console -->
   <div id="modal-console" class="modal">
     <div class="modal-contenu modal-large">
       <h2>📜 Console de développement</h2>
@@ -149,37 +267,95 @@
       <div id="console-logs" class="console-logs"></div>
     </div>
   </div>
+
+  <!-- Modal À propos -->
   <div id="modal-apropos" class="modal">
     <div class="modal-contenu">
       <span class="modal-fermer" onclick="fermerAPropos()">&times;</span>
-      <h2>À propos</h2>
-      <p>Jarvis - Optimisateur de Construction<br>Développé par Latury, 2025<br><a
-          href="https://github.com/Latury/Jarvis-Optimisateur-Construction" target="_blank">GitHub</a></p>
+      <h2>ℹ️ À propos de Jarvis</h2>
+      <div style="padding: 20px 0; line-height: 1.8;">
+        <p><strong>Jarvis - Optimisateur de Construction</strong></p>
+        <p style="color: #a8b2d1; margin-bottom: 20px;">
+          Outil d'optimisation avancé pour le système de Construction du jeu Legends of Idleon
+        </p>
+
+        <div style="margin: 20px 0; padding: 15px; background: rgba(0, 173, 181, 0.1); border-radius: 8px;">
+          <p><strong>🎯 Fonctionnalités</strong></p>
+          <p style="color: #a8b2d1; font-size: 0.95em;">
+            • Gestion intelligente de l'inventaire de Cogs<br>
+            • Optimisation automatique du placement<br>
+            • Calcul des statistiques en temps réel<br>
+            • Import/Export de configurations<br>
+            • Support drag & drop de fichiers<br>
+            • Notifications en temps réel<br>
+            • Mode sombre/clair
+          </p>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <p><strong>👨‍💻 Développeur</strong></p>
+          <p style="color: #a8b2d1;">Latury</p>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <p><strong>📦 Version actuelle</strong></p>
+          <p style="color: #00adb5; font-weight: bold;">v0.1.6</p>
+          <p style="color: #a8b2d1; font-size: 0.9em;">
+            • Validation améliorée des données<br>
+            • Gestion d'erreurs robuste<br>
+            • Support drag & drop<br>
+            • Notifications visuelles<br>
+            • Export des données
+          </p>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <p><strong>🔗 Liens utiles</strong></p>
+          <p>
+            <a href="https://github.com/Latury/Jarvis-Optimisateur-Construction" target="_blank"
+              style="color: #00adb5; text-decoration: none; margin-right: 15px;">
+              💻 Code source
+            </a>
+            <a href="https://idleon.wiki/wiki/Construction" target="_blank"
+              style="color: #00adb5; text-decoration: none;">
+              📖 Wiki Construction
+            </a>
+          </p>
+        </div>
+
+        <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #1f4068; text-align: center;">
+          <p style="color: #a8b2d1; font-size: 0.9em;">
+            © 2025 Latury - Tous droits réservés
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Contenu principal -->
   <main>
     <div class="colonne gauche">
       <h2>📦 Inventaire</h2>
       <div class="inventaire-zone">
         <div class="grille inventaire-grille" id="inventaire"></div>
         <div class="pagination">
-          <button type="button" onclick="pagePrecedente()" id="btn-precedent">◀️</button>
-          <span id="info-page">Page 1 / 18</span>
-          <button type="button" onclick="pageSuivante()" id="btn-suivant">▶️</button>
+          <button type="button" onclick="changerPage(-1)" id="btn-precedent" aria-label="Page précédente">◀️</button>
+          <span id="info-page">Page 1 / 1</span>
+          <button type="button" onclick="changerPage(1)" id="btn-suivant" aria-label="Page suivante">▶️</button>
         </div>
-
       </div>
     </div>
+
     <div class="colonne centre">
       <h2>🔧 Plateau de Construction</h2>
       <div class="grille plateau-grille" id="plateau"></div>
       <div class="etapes-basse" style="margin-top:28px;">
-        <button type="button" onclick="etapePrecedente()">◀️</button>
+        <button type="button" onclick="etapePrecedente()" aria-label="Étape précédente">◀️</button>
         <span id="etape-infos">Étape 0 / 0 — En attente d'optimisation...</span>
-        <button type="button" onclick="etapeSuivante()">▶️</button>
+        <button type="button" onclick="etapeSuivante()" aria-label="Étape suivante">▶️</button>
       </div>
     </div>
+
     <div class="colonne droite">
       <div class="stats-box">
         <h2>📊 Étapes d'optimisation</h2>
@@ -188,499 +364,70 @@
       <div class="stats-box">
         <h2>📈 Statistiques</h2>
         <h3>Avant optimisation</h3>
-        <div class="stat-ligne"><span>Taux de construction :</span><span class="stat-valeur"
-            id="avant-construction">-</span></div>
-        <div class="stat-ligne"><span>XP gagnée :</span><span class="stat-valeur" id="avant-xp">-</span></div>
-        <div class="stat-ligne"><span>Vitesse flags :</span><span class="stat-valeur" id="avant-flags">-</span></div>
-        <div class="stat-ligne"><span>Score total :</span><span class="stat-valeur" id="avant-score">-</span></div>
+        <div class="stat-ligne">
+          <span>Taux de construction :</span>
+          <span class="stat-valeur" id="avant-construction">-</span>
+        </div>
+        <div class="stat-ligne">
+          <span>XP gagnée :</span>
+          <span class="stat-valeur" id="avant-xp">-</span>
+        </div>
+        <div class="stat-ligne">
+          <span>Vitesse flags :</span>
+          <span class="stat-valeur" id="avant-flags">-</span>
+        </div>
+        <div class="stat-ligne">
+          <span>Score total :</span>
+          <span class="stat-valeur" id="avant-score">-</span>
+        </div>
+
         <h3>Après optimisation</h3>
-        <div class="stat-ligne"><span>Taux de construction :</span><span class="stat-valeur"
-            id="apres-construction">-</span></div>
-        <div class="stat-ligne"><span>XP gagnée :</span><span class="stat-valeur" id="apres-xp">-</span></div>
-        <div class="stat-ligne"><span>Vitesse flags :</span><span class="stat-valeur" id="apres-flags">-</span></div>
-        <div class="stat-ligne"><span>Score total :</span><span class="stat-valeur" id="apres-score">-</span></div>
-        <div class="amelioration">⬆️ Amélioration : <span id="amelioration">-</span></div>
+        <div class="stat-ligne">
+          <span>Taux de construction :</span>
+          <span class="stat-valeur" id="apres-construction">-</span>
+        </div>
+        <div class="stat-ligne">
+          <span>XP gagnée :</span>
+          <span class="stat-valeur" id="apres-xp">-</span>
+        </div>
+        <div class="stat-ligne">
+          <span>Vitesse flags :</span>
+          <span class="stat-valeur" id="apres-flags">-</span>
+        </div>
+        <div class="stat-ligne">
+          <span>Score total :</span>
+          <span class="stat-valeur" id="apres-score">-</span>
+        </div>
+
+        <div class="amelioration">
+          ⬆️ Amélioration : <span id="amelioration">-</span>
+        </div>
       </div>
     </div>
   </main>
+
   <footer>
-    <div class="footer-ligne">© 2025 <strong>Latury</strong> - Jarvis Optimisateur de Construction</div>
-    <div class="footer-ligne">Version <strong>0.1.0</strong> - Phase de développement</div>
+    <div class="footer-ligne">
+      © 2025 <strong>Latury</strong> - Jarvis Optimisateur de Construction
+    </div>
+    <div class="footer-ligne">
+      Version <strong>0.1.6</strong> - Phase de développement
+    </div>
     <div class="footer-ligne">
       <a href="https://github.com/Latury/Jarvis-Optimisateur-Construction" target="_blank">GitHub</a>
       <span> | </span>
       <a href="https://idleon.wiki/wiki/Construction" target="_blank">Wiki Idleon</a>
     </div>
   </footer>
-  <script>
-    // ========================================
-    // Jarvis - Optimisateur de Construction
-    // Version 0.1.5
-    // ========================================
 
-    // Variables globales
-    let pageActuelle = 1, pagesTotal = 18;
-    let etapeActuelle = 0, etapes = [];
-    let consoleLogs = [];
-    let themeActuel = 'sombre'; // Préparation pour le toggle de thème
+  <!-- Scripts externes -->
+  <script src="js/cogs-data.js"></script>
+  <script src="js/cogs-manager.js"></script>
+  <script src="js/chargeur.js"></script>
+  <script src="js/interface.js"></script>
+  <script src="js/optimiseur.js"></script>
+  <script src="js/principal.js"></script>
 
-    // ========================================
-    // GESTION DE LA PAGINATION
-    // ========================================
-
-    function updateInfoPage() {
-      const elt = document.getElementById("info-page");
-      if (elt) {
-        elt.textContent = `Page ${pageActuelle} / ${pagesTotal}`;
-      }
-    }
-
-    function pagePrecedente() {
-      if (pageActuelle > 1) {
-        pageActuelle--;
-        updateInfoPage();
-        logConsole('info', `📄 Navigation vers la page ${pageActuelle}`);
-      } else {
-        logConsole('warn', '⚠️ Déjà à la première page');
-      }
-    }
-
-    function pageSuivante() {
-      if (pageActuelle < pagesTotal) {
-        pageActuelle++;
-        updateInfoPage();
-        logConsole('info', `📄 Navigation vers la page ${pageActuelle}`);
-      } else {
-        logConsole('warn', '⚠️ Déjà à la dernière page');
-      }
-    }
-
-    function allerAPage(numPage) {
-      if (numPage >= 1 && numPage <= pagesTotal) {
-        pageActuelle = numPage;
-        updateInfoPage();
-        logConsole('info', `📄 Saut vers la page ${pageActuelle}`);
-      }
-    }
-
-    // ========================================
-    // GESTION DES ÉTAPES D'OPTIMISATION
-    // ========================================
-
-    function afficherEtape() {
-      const span = document.getElementById('etape-infos');
-      if (!span) return;
-
-      if (etapes.length === 0) {
-        span.textContent = "Étape 0 / 0 — En attente d'optimisation...";
-      } else {
-        span.textContent = `Étape ${etapeActuelle} / ${etapes.length} — ${etapes[etapeActuelle - 1]}`;
-      }
-    }
-
-    function etapePrecedente() {
-      if (etapes.length > 0 && etapeActuelle > 1) {
-        etapeActuelle--;
-        afficherEtape();
-        logConsole('info', `⏮️ Étape précédente : ${etapeActuelle}`);
-      } else {
-        logConsole('warn', '⚠️ Aucune étape précédente disponible');
-      }
-    }
-
-    function etapeSuivante() {
-      if (etapes.length > 0 && etapeActuelle < etapes.length) {
-        etapeActuelle++;
-        afficherEtape();
-        logConsole('info', `⏭️ Étape suivante : ${etapeActuelle}`);
-      } else {
-        logConsole('warn', '⚠️ Aucune étape suivante disponible');
-      }
-    }
-
-    function startOptimisationEtapes() {
-      etapes = [
-        "🔍 Analyse du plateau...",
-        "🧮 Calcul des positions optimales...",
-        "✅ Application des modifications"
-      ];
-      etapeActuelle = 1;
-      afficherEtape();
-
-      const etapesContenu = document.getElementById('etapes-contenu');
-      if (etapesContenu) {
-        etapesContenu.innerHTML = etapes.map((e, i) =>
-          `<div style="color: #00adb5; padding: 8px 0;">⏳ Étape ${i + 1} : ${e}</div>`
-        ).join('');
-      }
-
-      logConsole('success', '🚀 Optimisation démarrée');
-    }
-
-    function resetOptimisationEtapes() {
-      etapes = [];
-      etapeActuelle = 0;
-      afficherEtape();
-
-      const etapesContenu = document.getElementById('etapes-contenu');
-      if (etapesContenu) {
-        etapesContenu.innerHTML = '<p class="message-vide">Aucune optimisation en cours...</p>';
-      }
-
-      logConsole('info', '🔄 Optimisation réinitialisée');
-    }
-
-    // ========================================
-    // GESTION DES MODALS
-    // ========================================
-
-    function ouvrirModalDonnees() {
-      const modal = document.getElementById("modal-donnees");
-      if (modal) {
-        modal.classList.add("actif");
-        logConsole('info', '📂 Modal de chargement des données ouvert');
-      }
-    }
-
-    function fermerModalDonnees() {
-      const modal = document.getElementById("modal-donnees");
-      if (modal) {
-        modal.classList.remove("actif");
-        logConsole('info', '❌ Modal de chargement des données fermé');
-      }
-    }
-
-    function ouvrirModalJSON() {
-      const modal = document.getElementById("modal-json");
-      if (modal) {
-        modal.classList.add("actif");
-        logConsole('info', '📋 Modal JSON ouvert');
-      }
-    }
-
-    function fermerModalJSON() {
-      const modal = document.getElementById("modal-json");
-      if (modal) {
-        modal.classList.remove("actif");
-        logConsole('info', '❌ Modal JSON fermé');
-      }
-    }
-
-    function afficherAPropos() {
-      const modal = document.getElementById("modal-apropos");
-      if (modal) {
-        modal.classList.add("actif");
-        logConsole('info', 'ℹ️ Modal À propos ouvert');
-      }
-    }
-
-    function fermerAPropos() {
-      const modal = document.getElementById("modal-apropos");
-      if (modal) {
-        modal.classList.remove("actif");
-        logConsole('info', '❌ Modal À propos fermé');
-      }
-    }
-
-    function afficherLogsConsole() {
-      const consoleDiv = document.getElementById('console-logs');
-      if (!consoleDiv) return;
-
-      if (consoleLogs.length === 0) {
-        consoleDiv.innerHTML = '<p style="color: #a8b2d1; text-align: center; padding: 20px;">📭 Aucun log disponible</p>';
-      } else {
-        consoleDiv.innerHTML = consoleLogs.map(log =>
-          `<div class="console-log-ligne">
-        <span class="console-log-time">${log.time}</span>
-        <span class="console-log-type ${log.type}">[${log.type.toUpperCase()}]</span>
-        <span class="console-log-message">${log.message}</span>
-      </div>`
-        ).join('');
-        consoleDiv.scrollTop = consoleDiv.scrollHeight;
-      }
-
-      const modal = document.getElementById('modal-console');
-      if (modal) {
-        modal.classList.add('actif');
-      }
-    }
-
-    function copierLogs() {
-      const logs = consoleLogs.map(log =>
-        `[${log.time}] [${log.type.toUpperCase()}] ${log.message}`
-      ).join('\n');
-
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(logs).then(() => {
-          logConsole('success', '📋 Logs copiés dans le presse-papier');
-          afficherLogsConsole();
-        }).catch(() => {
-          logConsole('error', '❌ Erreur lors de la copie des logs');
-        });
-      } else {
-        logConsole('error', '❌ API clipboard non supportée');
-      }
-    }
-
-    function rafraichirConsole() {
-      logConsole('info', '🔄 Console rafraîchie');
-      afficherLogsConsole();
-    }
-
-    function effacerLogsConsole() {
-      consoleLogs = [];
-      logConsole('info', '🧹 Console effacée');
-      afficherLogsConsole();
-    }
-
-    function fermerModalConsole() {
-      const modal = document.getElementById('modal-console');
-      if (modal) {
-        modal.classList.remove('actif');
-        logConsole('info', '❌ Console fermée');
-      }
-    }
-
-    // ========================================
-    // FONCTIONS DE GESTION DES DONNÉES
-    // ========================================
-
-    function chargerDonnees() {
-      const zoneDonnees = document.getElementById('zone-donnees');
-      if (!zoneDonnees || !zoneDonnees.value.trim()) {
-        logConsole('error', '❌ Aucune donnée à charger');
-        return;
-      }
-
-      try {
-        // Validation basique des données (à améliorer en v0.2.0)
-        const donnees = zoneDonnees.value.trim();
-        if (donnees.length < 10) {
-          logConsole('error', '❌ Données invalides ou trop courtes');
-          return;
-        }
-
-        logConsole('success', '✅ Données chargées avec succès (simulation)');
-        fermerModalDonnees();
-      } catch (error) {
-        logConsole('error', `❌ Erreur lors du chargement : ${error.message}`);
-      }
-    }
-
-    function collerDonnees() {
-      if (navigator.clipboard) {
-        navigator.clipboard.readText().then(function (text) {
-          const zoneDonnees = document.getElementById('zone-donnees');
-          if (zoneDonnees) {
-            zoneDonnees.value = text;
-            logConsole('success', '📋 Données collées depuis le presse-papier');
-          }
-        }).catch(function () {
-          logConsole('error', '❌ Impossible de lire le presse-papier (permissions refusées)');
-        });
-      } else {
-        logConsole('error', '❌ API clipboard non supportée par ce navigateur');
-      }
-    }
-
-    function effacerDonnees() {
-      const zoneDonnees = document.getElementById('zone-donnees');
-      if (zoneDonnees) {
-        zoneDonnees.value = '';
-        logConsole('warn', '🗑️ Zone de données effacée');
-      }
-    }
-
-    function chargerJSON() {
-      const zoneJSON = document.getElementById('zone-json');
-      if (!zoneJSON || !zoneJSON.value.trim()) {
-        logConsole('error', '❌ Aucun JSON à charger');
-        return;
-      }
-
-      try {
-        const jsonData = JSON.parse(zoneJSON.value);
-        logConsole('success', '✅ JSON chargé et validé avec succès');
-        fermerModalJSON();
-      } catch (error) {
-        logConsole('error', `❌ JSON invalide : ${error.message}`);
-      }
-    }
-
-    function copierJSON() {
-      const zoneJSON = document.getElementById('zone-json');
-      if (!zoneJSON || !zoneJSON.value.trim()) {
-        logConsole('error', '❌ Aucun JSON à copier');
-        return;
-      }
-
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(zoneJSON.value).then(() => {
-          logConsole('success', '📋 JSON copié dans le presse-papier');
-        }).catch(() => {
-          logConsole('error', '❌ Erreur lors de la copie du JSON');
-        });
-      } else {
-        logConsole('error', '❌ API clipboard non supportée');
-      }
-    }
-
-    function effacerJSON() {
-      const zoneJSON = document.getElementById('zone-json');
-      if (zoneJSON) {
-        zoneJSON.value = '';
-        logConsole('warn', '🗑️ Zone JSON effacée');
-      }
-    }
-
-    // ========================================
-    // GESTION DES GRILLES
-    // ========================================
-
-    function creerGrilles() {
-      const inv = document.getElementById('inventaire');
-      const plateau = document.getElementById('plateau');
-
-      // Création de l'inventaire (15 cases visibles par page)
-      if (inv) {
-        inv.innerHTML = '';
-        for (let i = 0; i < 15; i++) {
-          const div = document.createElement('div');
-          div.className = 'case';
-          div.setAttribute('data-index', i);
-          inv.appendChild(div);
-        }
-        logConsole('info', '📦 Inventaire créé (15 cases)');
-      }
-
-      // Création du plateau de construction (96 cases - 12x8)
-      if (plateau) {
-        plateau.innerHTML = '';
-        for (let i = 0; i < 96; i++) {
-          const div = document.createElement('div');
-          div.className = 'case';
-          div.setAttribute('data-index', i);
-          plateau.appendChild(div);
-        }
-        logConsole('info', '🏗️ Plateau de construction créé (96 cases)');
-      }
-    }
-
-    // ========================================
-    // FONCTIONS UTILITAIRES
-    // ========================================
-
-    function toggleTheme() {
-      themeActuel = themeActuel === 'sombre' ? 'clair' : 'sombre';
-      document.body.setAttribute('data-theme', themeActuel);
-      logConsole('info', `🎨 Thème changé : ${themeActuel}`);
-    }
-
-    function popupIndisponible() {
-      logConsole('warn', '⚠️ Fonctionnalité non implémentée');
-      alert('Cette fonctionnalité sera disponible dans une future mise à jour ! 🚧');
-    }
-
-    function sauvegarder() {
-      logConsole('info', '💾 Sauvegarde non implémentée (v0.2.0)');
-      popupIndisponible();
-    }
-
-    function exporterDonnees() {
-      logConsole('info', '📤 Export non implémenté (v0.2.0)');
-      popupIndisponible();
-    }
-
-    function supprimerSauvegarde() {
-      logConsole('warn', '🗑️ Suppression non implémentée (v0.2.0)');
-      popupIndisponible();
-    }
-
-    // ========================================
-    // SYSTÈME DE LOGS
-    // ========================================
-
-    function logConsole(type, message) {
-      const time = new Date().toLocaleTimeString('fr-FR');
-      consoleLogs.push({ time, type, message });
-
-      // Limite à 100 logs pour éviter la surcharge mémoire
-      if (consoleLogs.length > 100) {
-        consoleLogs.shift();
-      }
-
-      // Log également dans la console du navigateur pour le debug
-      console.log(`[${time}] [${type.toUpperCase()}] ${message}`);
-    }
-
-    function capturerErreurs() {
-      window.onerror = function (message, source, lineno, colno, error) {
-        logConsole('error', `❌ Erreur JS : ${message} (Ligne ${lineno})`);
-        return false;
-      };
-
-      window.onunhandledrejection = function (event) {
-        logConsole('error', `❌ Promise rejetée : ${event.reason}`);
-      };
-    }
-
-    // ========================================
-    // INITIALISATION
-    // ========================================
-
-    window.onload = function () {
-      logConsole('info', '🚀 Initialisation de Jarvis v0.1.5...');
-
-      // Initialisation des composants
-      creerGrilles();
-      resetOptimisationEtapes();
-      updateInfoPage();
-      capturerErreurs();
-
-      // Message de bienvenue
-      logConsole('success', '✅ Jarvis initialisé avec succès !');
-      logConsole('info', '👋 Bienvenue sur Jarvis - Optimisateur de Construction');
-
-      // Affichage automatique du modal de chargement
-      setTimeout(() => {
-        ouvrirModalDonnees();
-      }, 500);
-    };
-
-    // ========================================
-    // FERMETURE DES MODALS AU CLIC EXTÉRIEUR
-    // ========================================
-
-    document.addEventListener('click', function (event) {
-      if (event.target.classList.contains('modal') && event.target.classList.contains('actif')) {
-        event.target.classList.remove('actif');
-        logConsole('info', '❌ Modal fermé (clic extérieur)');
-      }
-    });
-
-    // ========================================
-    // GESTION DES TOUCHES CLAVIER
-    // ========================================
-
-    document.addEventListener('keydown', function (event) {
-      // Fermer les modals avec Échap
-      if (event.key === 'Escape') {
-        const modalsActifs = document.querySelectorAll('.modal.actif');
-        modalsActifs.forEach(modal => {
-          modal.classList.remove('actif');
-          logConsole('info', '❌ Modal fermé (touche Échap)');
-        });
-      }
-
-      // Navigation pagination avec flèches
-      if (event.key === 'ArrowLeft') {
-        pagePrecedente();
-      } else if (event.key === 'ArrowRight') {
-        pageSuivante();
-      }
-    });
-
-  </script>
 </body>
 
 </html>
