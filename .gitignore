@@ -1,47 +1,39 @@
-# Dépendances (au cas où tu utilises des outils Node plus tard)
-node_modules/
+# ===== FICHIERS SPÉCIFIQUES DU PROJET =====
+# Script de maintenance (ne pas publier)
+/script.js
 
-# Dossiers de build éventuels
-dist/
-build/
-
-# Fichiers de logs
-*.log
-logs/
-
-# Fichiers temporaires / système
-.DS_Store
-Thumbs.db
-
-# Config locale de VS Code (raccourcis, thèmes, etc.)
-.vscode/
-
-# Sauvegardes ou fichiers temporaires
-*.tmp
-*.swp
-*~
-
-# Sauvegardes automatiques
+# ===== SAUVEGARDES =====
 backup_jarvis/
+_backups/
 *.bak
 *.backup
 
-# Fichiers temporaires
+
+# ===== FICHIERS TEMPORAIRES =====
 *.tmp
 *.log
+*.swp
+*.swo
+*~
 ~$*
 
-# Dossiers Node.js (si tu utilises npm plus tard)
+# ===== NODE.JS =====
 node_modules/
 package-lock.json
+npm-debug.log
 
-# Fichiers système
+# ===== FICHIERS SYSTÈME =====
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Éditeurs
+# ===== ÉDITEURS =====
 .vscode/
 .idea/
-*.swp
-*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ===== DOSSIERS DE BUILD =====
+dist/
+build/
+logs/
