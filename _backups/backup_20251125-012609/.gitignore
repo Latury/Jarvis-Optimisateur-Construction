@@ -1,0 +1,22 @@
+# Dépendances (au cas où tu utilises des outils Node plus tard)
+node_modules/
+
+# Dossiers de build éventuels
+dist/
+build/
+
+# Fichiers de logs
+*.log
+logs/
+
+# Fichiers temporaires / système
+.DS_Store
+Thumbs.db
+
+# Config locale de VS Code (raccourcis, thèmes, etc.)
+.vscode/
+
+# Sauvegardes ou fichiers temporaires
+*.tmp
+*.swp
+*~

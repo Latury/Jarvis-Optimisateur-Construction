@@ -1,0 +1,47 @@
+# Dépendances (au cas où tu utilises des outils Node plus tard)
+node_modules/
+
+# Dossiers de build éventuels
+dist/
+build/
+
+# Fichiers de logs
+*.log
+logs/
+
+# Fichiers temporaires / système
+.DS_Store
+Thumbs.db
+
+# Config locale de VS Code (raccourcis, thèmes, etc.)
+.vscode/
+
+# Sauvegardes ou fichiers temporaires
+*.tmp
+*.swp
+*~
+
+# Sauvegardes automatiques
+backup_jarvis/
+*.bak
+*.backup
+
+# Fichiers temporaires
+*.tmp
+*.log
+~$*
+
+# Dossiers Node.js (si tu utilises npm plus tard)
+node_modules/
+package-lock.json
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
