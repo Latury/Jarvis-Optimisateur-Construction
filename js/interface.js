@@ -1,362 +1,458 @@
-// ======= MENUS DEROULANTS & INIT =======
-document.addEventListener("DOMContentLoaded", function () {
-  // Ouvre automatique le chargeur de données au démarrage
-  ouvrirModal("modal-chargeur");
+/* ==========================================
+   JARVIS - OPTIMISATEUR DE CONSTRUCTION
+   Fichier: interface.js
+   Gestion de l'interface utilisateur
+   ========================================== */
 
-  // Menus déroulants ouverts au clic
-  document.querySelectorAll(".menu-dropdown").forEach((menu) => {
-    const btn = menu.querySelector("button.btn-header");
-    if (btn) {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        document.querySelectorAll(".menu-dropdown").forEach((m) => {
-          if (m !== menu) m.classList.remove("ouvert");
-        });
-        menu.classList.toggle("ouvert");
-      };
+// ========================================
+// 🔔 BADGE D'ALERTE POUR LES ERREURS
+// ========================================
+
+let nombreErreurs = 0;
+let logsCaptures = [];
+
+function mettreAJourBadgeErreurs() {
+  const badge = document.getElementById("badge-erreurs");
+  if (!badge) return;
+
+  if (nombreErreurs > 0) {
+    badge.textContent = nombreErreurs;
+    badge.style.display = "inline-block";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+const originalLog = console.log;
+console.log = function (...args) {
+  const message = args.join(" ");
+
+  logsCaptures.push({
+    type: "info",
+    message: message,
+    timestamp: new Date().toLocaleString("fr-FR"),
+  });
+
+  if (message.includes("[ERROR]") || message.includes("❌")) {
+    nombreErreurs++;
+    mettreAJourBadgeErreurs();
+  }
+
+  originalLog.apply(console, args);
+};
+
+function afficherLogsConsole() {
+  const contenuConsole = document.getElementById("contenu-console");
+  if (!contenuConsole) return;
+
+  contenuConsole.textContent = "";
+
+  logsCaptures.forEach((log) => {
+    const ligne = `[${log.timestamp}] ${log.message}\n`;
+    contenuConsole.textContent += ligne;
+  });
+
+  contenuConsole.scrollTop = contenuConsole.scrollHeight;
+}
+
+// ========================================
+// 📦 GRILLE D'INVENTAIRE
+// ========================================
+
+function afficherGrilleInventaireVide() {
+  const inventaire = document.getElementById("inventaire-grille");
+  if (!inventaire) return;
+
+  let html = "";
+  const NB_PAGES = 8;
+  const LIGNES = 5;
+  const COLONNES = 3;
+
+  for (let page = 0; page < NB_PAGES; page++) {
+    html += `<div class="inventaire-page" data-page="${page}" style="display:${
+      page === 0 ? "block" : "none"
+    };">`;
+
+    for (let y = 0; y < LIGNES; y++) {
+      html += '<div class="inventaire-row">';
+      for (let x = 0; x < COLONNES; x++) {
+        html += `<div class="case-inventaire case-vide" data-page="${page}" data-x="${x}" data-y="${y}"></div>`;
+      }
+      html += "</div>";
     }
-  });
-  document.body.addEventListener("click", () => {
-    document
-      .querySelectorAll(".menu-dropdown")
-      .forEach((m) => m.classList.remove("ouvert"));
-  });
 
-  // Autres initialisations
-  if (typeof initialiserModals === "function") {
-    initialiserModals();
+    html += "</div>";
   }
-  if (typeof initialiserHeaderLiens === "function") {
-    initialiserHeaderLiens();
+
+  inventaire.innerHTML = html;
+  console.log("[Jarvis] ✅ Grille d'inventaire (5×3 sur 8 pages) affichée");
+}
+
+// ========================================
+// 📄 PAGINATION INVENTAIRE
+// ========================================
+
+let pageActuelle = 0;
+const NB_PAGES_INVENTAIRE = 8;
+
+function afficherPageInventaire(numeroPage) {
+  if (numeroPage < 0 || numeroPage >= NB_PAGES_INVENTAIRE) return;
+
+  pageActuelle = numeroPage;
+
+  const pages = document.querySelectorAll(".inventaire-page");
+  pages.forEach((page) => (page.style.display = "none"));
+
+  const pageVisible = document.querySelector(
+    `.inventaire-page[data-page="${numeroPage}"]`
+  );
+  if (pageVisible) {
+    pageVisible.style.display = "block";
   }
-  if (typeof initialiserConsoleToolbar === "function") {
-    initialiserConsoleToolbar();
+
+  const textePagination = document.getElementById("texte-pagination");
+  if (textePagination) {
+    textePagination.textContent = `Page ${
+      numeroPage + 1
+    } / ${NB_PAGES_INVENTAIRE}`;
   }
-  if (typeof lancerLogPulse === "function") {
-    lancerLogPulse();
+}
+
+// ========================================
+// 🏗️ GRILLE DU PLATEAU
+// ========================================
+
+function afficherPlateauVide() {
+  const plateau = document.getElementById("plateau-grille");
+  if (!plateau) return;
+
+  let html = "";
+  const LIGNES = 8;
+  const COLONNES = 12;
+
+  for (let y = 0; y < LIGNES; y++) {
+    html += '<div class="plateau-row">';
+    for (let x = 0; x < COLONNES; x++) {
+      html += `<div class="case-plateau case-vide" data-x="${x}" data-y="${y}"></div>`;
+    }
+    html += "</div>";
   }
+
+  plateau.innerHTML = html;
+  console.log("[Jarvis] ✅ Plateau de construction (8×12) affiché");
+}
+
+// ========================================
+// 📋 GESTION INTELLIGENTE DES MENUS DÉROULANTS
+// ========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  const menus = document.querySelectorAll(".menu-dropdown");
+  let menuActif = null;
+  let timeoutFermeture = null;
+
+  menus.forEach((menu) => {
+    const bouton = menu.querySelector(".btn-header");
+    const contenu = menu.querySelector(".dropdown-contenu");
+
+    if (!bouton || !contenu) return;
+
+    // Quand on entre sur un bouton de menu
+    bouton.addEventListener("mouseenter", function () {
+      // Annule le timeout de fermeture si on change de menu rapidement
+      if (timeoutFermeture) {
+        clearTimeout(timeoutFermeture);
+        timeoutFermeture = null;
+      }
+
+      // Si un autre menu était ouvert, le ferme immédiatement
+      if (menuActif && menuActif !== menu) {
+        menuActif.classList.remove("menu-ouvert");
+      }
+
+      // Ouvre le menu actuel
+      menu.classList.add("menu-ouvert");
+      menuActif = menu;
+    });
+
+    // Quand on entre dans le sous-menu
+    contenu.addEventListener("mouseenter", function () {
+      if (timeoutFermeture) {
+        clearTimeout(timeoutFermeture);
+        timeoutFermeture = null;
+      }
+    });
+
+    // Quand on quitte le menu (bouton + sous-menu)
+    menu.addEventListener("mouseleave", function () {
+      // Délai de 400ms avant de fermer (confort)
+      timeoutFermeture = setTimeout(() => {
+        menu.classList.remove("menu-ouvert");
+        if (menuActif === menu) {
+          menuActif = null;
+        }
+      }, 400);
+    });
+  });
 });
 
+// ========================================
+// 🪟 GESTION DES MODALES
+// ========================================
+
+function ouvrirModal(idModal) {
+  const modal = document.getElementById(idModal);
+  if (modal) {
+    modal.classList.add("actif");
+    console.log(`[Jarvis] Modal ${idModal} ouverte`);
+  } else {
+    console.log(`[ERROR] Modal ${idModal} introuvable`);
+  }
+}
+
+function fermerModal(idModal) {
+  const modal = document.getElementById(idModal);
+  if (modal) {
+    modal.classList.remove("actif");
+  }
+}
+
+// ========================================
+// 📄 CHARGEMENT DES DOCUMENTS MARKDOWN
+// ========================================
+
 const MARKDOWN_PATHS = {
-  changelog: "CHANGELOG.md",
-  patchnotes: "PATCHNOTES.md",
+  changelog: "changelog.md",
+  patchnotes: "patchnotes.md",
   roadmap: "FEUILLE_DE_ROUTE.md",
 };
 
-let jarvisConsoleBuffer = [];
-let consoleFilterText = "";
-let logPage = 1;
-let logPerPage = 35;
+async function chargerMarkdown(fichier, idConteneur) {
+  const conteneur = document.getElementById(idConteneur);
+  if (!conteneur) return;
 
-(function patchConsole() {
-  const oldLog = console.log,
-    oldErr = console.error,
-    oldWarn = console.warn,
-    oldDebug = console.debug;
-  function pushLog(type, args) {
-    const str = args
-      .map((a) =>
-        typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)
-      )
-      .join(" ");
-    const line = { type, msg: str, ts: new Date() };
-    jarvisConsoleBuffer.push(line);
-    if (jarvisConsoleBuffer.length > 10000) jarvisConsoleBuffer.shift();
-    rafUpdateConsole();
-    logPulse();
+  try {
+    const response = await fetch(fichier);
+    const texte = await response.text();
+    conteneur.innerHTML = `<pre>${texte}</pre>`;
+    console.log(`[setupDocBtn] Markdown reçu (${texte.length} caractères)`);
+  } catch (erreur) {
+    conteneur.innerHTML = `<p style="color: #ff6b6b;">❌ Impossible de charger le fichier ${fichier}</p>`;
+    console.log(`[ERROR] Chargement Markdown échoué : ${erreur.message}`);
   }
-  console.log = (...args) => {
-    pushLog("info", args);
-    oldLog(...args);
-  };
-  console.warn = (...args) => {
-    pushLog("warn", args);
-    oldWarn(...args);
-  };
-  console.error = (...args) => {
-    pushLog("error", args);
-    oldErr(...args);
-  };
-  console.debug = (...args) => {
-    pushLog("debug", args);
-    oldDebug(...args);
-  };
-})();
+}
 
-function rafUpdateConsole() {
-  if (!rafUpdateConsole._pending) {
-    rafUpdateConsole._pending = true;
-    requestAnimationFrame(() => {
-      rafUpdateConsole._pending = false;
-      const area = document.getElementById("contenu-console");
-      if (area) {
-        let logs = jarvisConsoleBuffer;
-        if (consoleFilterText) {
-          logs = logs.filter((l) =>
-            l.msg.toLowerCase().includes(consoleFilterText.toLowerCase())
-          );
-        }
-        // PAGINATION
-        const totalPages = Math.max(1, Math.ceil(logs.length / logPerPage));
-        if (logPage > totalPages) logPage = totalPages;
-        const start = (logPage - 1) * logPerPage;
-        const pageLogs = logs.slice(start, start + logPerPage);
-        area.innerHTML =
-          pageLogs.length === 0
-            ? '<span class="log-vide">Aucun log à afficher</span>'
-            : pageLogs
-                .map(
-                  ({ type, msg, ts }) =>
-                    `<span class="log-${type}">[${ts.toLocaleDateString()} ${ts.toLocaleTimeString()}] ${msg}</span>`
-                )
-                .join("\n");
-        area.scrollTop = area.scrollHeight;
-        // Infos pagination
-        const infosPag = document.getElementById("console-pagination-infos");
-        if (infosPag) infosPag.textContent = `${logPage} / ${totalPages}`;
+// ========================================
+// 🎬 INITIALISATION
+// ========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("Live reload enabled.");
+  console.log("[Jarvis] Application initialisée (version 0.2.0)");
+
+  afficherGrilleInventaireVide();
+  afficherPlateauVide();
+
+  // ✅ OUVRE LE MODAL CHARGEUR AU DÉMARRAGE
+  ouvrirModal("modal-chargeur");
+
+  // Pagination inventaire
+  const btnPagePrec = document.getElementById("btn-page-prec");
+  const btnPageSuiv = document.getElementById("btn-page-suiv");
+
+  if (btnPagePrec) {
+    btnPagePrec.addEventListener("click", function () {
+      if (pageActuelle > 0) {
+        afficherPageInventaire(pageActuelle - 1);
       }
     });
   }
-}
 
-// ANIMATION icone live log (pulse)
-let logPulseTimeout;
-function logPulse() {
-  const icone = document.getElementById("console-live-ico");
-  if (icone) {
-    icone.classList.add("log-live-anim");
-    clearTimeout(logPulseTimeout);
-    logPulseTimeout = setTimeout(
-      () => icone.classList.remove("log-live-anim"),
-      350
-    );
-  }
-}
-function lancerLogPulse() {
-  // Ajoute l’icône si absente
-  if (!document.getElementById("console-live-ico")) {
-    const h2 = document.querySelector("#modal-console h2");
-    if (h2) {
-      const ico = document.createElement("span");
-      ico.id = "console-live-ico";
-      ico.title = "Logs en temps réel";
-      ico.style.marginLeft = "8px";
-      ico.innerText = "●";
-      h2.appendChild(ico);
-    }
-  }
-}
-
-// MODALS...
-function initialiserModals() {
-  const modalsId = [
-    "modal-chargeur",
-    "modal-apropos",
-    "modal-changelog",
-    "modal-patchnotes",
-    "modal-roadmap",
-    "modal-console",
-  ];
-  for (const id of modalsId) {
-    const modal = document.getElementById(id);
-    const fermeBtn = modal && modal.querySelector(".modal-fermer");
-    if (fermeBtn) fermeBtn.onclick = () => fermerModal(id);
-    window.addEventListener("click", (e) => {
-      if (e.target === modal) fermerModal(id);
+  if (btnPageSuiv) {
+    btnPageSuiv.addEventListener("click", function () {
+      if (pageActuelle < NB_PAGES_INVENTAIRE - 1) {
+        afficherPageInventaire(pageActuelle + 1);
+      }
     });
   }
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") modalsId.forEach((id) => fermerModal(id));
-  });
-}
-function ouvrirModal(id) {
-  const m = document.getElementById(id);
-  if (m) m.classList.add("actif");
-}
-function fermerModal(id) {
-  const m = document.getElementById(id);
-  if (m) m.classList.remove("actif");
-}
 
-// HEADER, BOUTONS, POPUPS
-function initialiserHeaderLiens() {
-  const byId = (id) => document.getElementById(id);
-  if (byId("btn-menu-chargeur"))
-    byId("btn-menu-chargeur").onclick = () => ouvrirModal("modal-chargeur");
-  if (byId("btn-console"))
-    byId("btn-console").onclick = () => {
-      ouvrirModal("modal-console");
-      rafUpdateConsole();
-    };
-  if (byId("btn-apropos"))
-    byId("btn-apropos").onclick = () => ouvrirModal("modal-apropos");
-  setupDocBtn(
-    "btn-aide-changelog",
-    "modal-changelog",
-    MARKDOWN_PATHS.changelog,
-    "contenu-changelog"
-  );
-  setupDocBtn(
-    "btn-aide-patchnotes",
-    "modal-patchnotes",
-    MARKDOWN_PATHS.patchnotes,
-    "contenu-patchnotes"
-  );
-  setupDocBtn(
-    "btn-aide-roadmap",
-    "modal-roadmap",
-    MARKDOWN_PATHS.roadmap,
-    "contenu-roadmap"
-  );
-  if (byId("btn-aide-wiki"))
-    byId("btn-aide-wiki").onclick = () =>
-      window.open("https://idleon.wiki/wiki/Construction", "_blank");
-  if (byId("btn-aide-github"))
-    byId("btn-aide-github").onclick = () =>
-      window.open(
-        "https://github.com/Latury/Jarvis-Optimisateur-Construction",
-        "_blank"
-      );
-  if (byId("btn-theme")) byId("btn-theme").onclick = basculerTheme;
-}
+  afficherPageInventaire(0);
 
-function setupDocBtn(btnId, modalId, mdPath, contId) {
-  const btn = document.getElementById(btnId);
-  if (!btn) {
-    console.warn(`[setupDocBtn] Bouton ${btnId} non trouvé !`);
-    return;
-  }
-  btn.onclick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(`[setupDocBtn] Ouverture de ${modalId} avec ${mdPath}`);
-    ouvrirModal(modalId);
+  // ========================================
+  // 🔗 BOUTONS AVEC LIENS EXTERNES
+  // ========================================
 
-    const contenuElem = document.getElementById(contId);
-    if (!contenuElem) {
-      console.error(
-        `[setupDocBtn] Élément ${contId} introuvable dans le DOM !`
-      );
-      return;
-    }
-
-    contenuElem.innerHTML =
-      '<p style="text-align:center;color:#999;">⏳ Chargement...</p>';
-
-    fetch(mdPath)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.text();
-      })
-      .then((md) => {
-        console.log(`[setupDocBtn] Markdown reçu (${md.length} caractères)`);
-        try {
-          setMarkdownHtml(md, contId);
-          console.log(`[setupDocBtn] ✅ Affichage réussi pour ${contId}`);
-        } catch (err) {
-          console.error(`[setupDocBtn] Erreur lors du rendu markdown:`, err);
-          contenuElem.innerHTML = `<p style="color:#ff6b6b;">❌ Erreur de rendu du contenu.</p>`;
-        }
-      })
-      .catch((err) => {
-        console.error(`[setupDocBtn] Erreur chargement ${mdPath}:`, err);
-        contenuElem.innerHTML = `<p style="color:#ff6b6b;">❌ Impossible de charger <strong>${mdPath}</strong>.</p><p>Vérifiez que le fichier existe et que vous utilisez un serveur local.</p>`;
-      });
-  };
-  console.log(`[setupDocBtn] ✅ Bouton ${btnId} initialisé`);
-}
-
-function setMarkdownHtml(rawMd, elementId) {
-  const elem = document.getElementById(elementId);
-  if (!elem) {
-    throw new Error(`Élément ${elementId} introuvable`);
+  // Wiki Idleon (page principale)
+  const btnAideWiki = document.getElementById("btn-aide-wiki");
+  if (btnAideWiki) {
+    btnAideWiki.addEventListener("click", function () {
+      window.open("https://idleon.wiki/wiki/Main_Page", "_blank");
+      console.log("[Jarvis] Ouverture Wiki Idleon");
+    });
   }
 
-  if (typeof showdown !== "undefined" && showdown.Converter) {
-    const conv = new showdown.Converter();
-    elem.innerHTML = conv.makeHtml(rawMd);
+  // Wiki Engrenages (Cogs)
+  const btnAideWikiCogs = document.getElementById("btn-aide-wiki-cogs");
+  if (btnAideWikiCogs) {
+    btnAideWikiCogs.addEventListener("click", function () {
+      window.open("https://idleon.wiki/wiki/Construction#Cogs", "_blank");
+      console.log("[Jarvis] Ouverture Wiki Engrenages");
+    });
+  }
+
+  // ========================================
+  // 🎨 BOUTON CHANGEMENT DE THÈME
+  // ========================================
+
+  const btnTheme = document.getElementById("btn-theme");
+  if (btnTheme) {
+    btnTheme.addEventListener("click", function () {
+      const themeActuel = document.body.getAttribute("data-theme") || "sombre";
+      const nouveauTheme = themeActuel === "clair" ? "sombre" : "clair";
+      document.body.setAttribute("data-theme", nouveauTheme);
+      console.log(`[Jarvis] Thème basculé : ${nouveauTheme}`);
+    });
+  }
+
+  // ========================================
+  // 🪵 BOUTON À PROPOS (CORRIGÉ)
+  // ========================================
+
+  const btnAPropos = document.getElementById("btn-a-propos");
+  if (btnAPropos) {
+    btnAPropos.addEventListener("click", function () {
+      ouvrirModal("modal-a-propos");
+    });
   } else {
-    console.warn("[setMarkdownHtml] Showdown non chargé, affichage texte brut");
-    elem.innerHTML = `<pre style="white-space:pre-wrap;font-size:0.9em;">${rawMd}</pre>`;
+    console.log("[ERROR] Bouton btn-a-propos introuvable");
   }
-}
 
-function initialiserConsoleToolbar() {
-  const clearBtn = document.getElementById("btn-console-clear"),
-    copyBtn = document.getElementById("btn-console-copy"),
-    exportBtn = document.getElementById("btn-console-export"),
-    filterInput = document.getElementById("console-filter"),
-    prevBtn = document.getElementById("console-page-prev"),
-    nextBtn = document.getElementById("console-page-next"),
-    infosPag = document.getElementById("console-pagination-infos");
-  if (clearBtn)
-    clearBtn.onclick = () => {
-      jarvisConsoleBuffer = [];
-      rafUpdateConsole();
-    };
-  if (copyBtn)
-    copyBtn.onclick = () => {
-      let txt = jarvisConsoleBuffer
-        .map(
-          (l) =>
-            `[${l.ts.toLocaleDateString()} ${l.ts.toLocaleTimeString()}] ${
-              l.msg
-            }`
-        )
-        .join("\n");
-      navigator.clipboard.writeText(txt);
-    };
-  if (exportBtn)
-    exportBtn.onclick = () => {
-      let txt = jarvisConsoleBuffer
-        .map(
-          (l) =>
-            `[${l.ts.toLocaleDateString()} ${l.ts.toLocaleTimeString()}] ${
-              l.msg
-            }`
-        )
-        .join("\n");
-      const blob = new Blob([txt], { type: "text/plain" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "logs_jarvis.txt";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    };
-  if (filterInput)
-    filterInput.addEventListener("input", (e) => {
-      consoleFilterText = e.target.value;
-      logPage = 1;
-      rafUpdateConsole();
+  // Bouton Chargeur de données
+  const btnChargerDonnees = document.getElementById("btn-charger-donnees");
+  if (btnChargerDonnees) {
+    btnChargerDonnees.addEventListener("click", function () {
+      ouvrirModal("modal-chargeur");
     });
-  if (prevBtn)
-    prevBtn.onclick = () => {
-      if (logPage > 1) {
-        logPage--;
-        rafUpdateConsole();
-      }
-    };
-  if (nextBtn)
-    nextBtn.onclick = () => {
-      const nTot = consoleFilterText
-        ? jarvisConsoleBuffer.filter((l) =>
-            l.msg.toLowerCase().includes(consoleFilterText.toLowerCase())
-          ).length
-        : jarvisConsoleBuffer.length;
-      const maxP = Math.max(1, Math.ceil(nTot / logPerPage));
-      if (logPage < maxP) {
-        logPage++;
-        rafUpdateConsole();
-      }
-    };
-}
+  }
 
-// Thème
-function basculerTheme() {
-  const body = document.body;
-  const theme = body.getAttribute("data-theme") || "sombre";
-  body.setAttribute("data-theme", theme === "sombre" ? "clair" : "sombre");
-  console.log(
-    `[Jarvis] Thème basculé : ${theme === "sombre" ? "clair" : "sombre"}`
-  );
+  // Boutons documentation
+  const btnAideChangelog = document.getElementById("btn-aide-changelog");
+  if (btnAideChangelog) {
+    btnAideChangelog.addEventListener("click", function () {
+      ouvrirModal("modal-changelog");
+      chargerMarkdown(MARKDOWN_PATHS.changelog, "contenu-changelog");
+    });
+  }
+
+  const btnAidePatchnotes = document.getElementById("btn-aide-patchnotes");
+  if (btnAidePatchnotes) {
+    btnAidePatchnotes.addEventListener("click", function () {
+      ouvrirModal("modal-patchnotes");
+      chargerMarkdown(MARKDOWN_PATHS.patchnotes, "contenu-patchnotes");
+    });
+  }
+
+  const btnAideRoadmap = document.getElementById("btn-aide-roadmap");
+  if (btnAideRoadmap) {
+    btnAideRoadmap.addEventListener("click", function () {
+      ouvrirModal("modal-roadmap");
+      chargerMarkdown(MARKDOWN_PATHS.roadmap, "contenu-roadmap");
+    });
+  }
+
+  // Console des logs
+  const btnConsoleLogs = document.getElementById("btn-console-logs");
+  if (btnConsoleLogs) {
+    btnConsoleLogs.addEventListener("click", function () {
+      ouvrirModal("modal-console");
+      afficherLogsConsole();
+      nombreErreurs = 0;
+      mettreAJourBadgeErreurs();
+    });
+  }
+
+  const btnConsoleClear = document.getElementById("btn-console-clear");
+  if (btnConsoleClear) {
+    btnConsoleClear.addEventListener("click", function () {
+      logsCaptures = [];
+      afficherLogsConsole();
+      nombreErreurs = 0;
+      mettreAJourBadgeErreurs();
+      console.log("[Jarvis] 🧹 Console effacée");
+    });
+  }
+
+  // Fermeture des modales
+  document.querySelectorAll(".modal-fermer").forEach((croix) => {
+    croix.addEventListener("click", function () {
+      const modal = this.closest(".modal");
+      if (modal) {
+        modal.classList.remove("actif");
+      }
+    });
+  });
+
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) {
+        modal.classList.remove("actif");
+      }
+    });
+  });
+
+  console.log("[Jarvis] ✅ Tous les événements initialisés");
+});
+
+// ========================================
+// 🔄 BOUTON RÉINITIALISER (avec modale personnalisée)
+// ========================================
+
+const btnReset = document.getElementById("btn-menu-reset");
+const modalReset = document.getElementById("modal-confirmation-reset");
+const btnConfirmerReset = document.getElementById("btn-confirmer-reset");
+const btnAnnulerReset = document.getElementById("btn-annuler-reset");
+const fermerModalReset = document.getElementById("fermer-modal-reset");
+
+if (btnReset && modalReset) {
+  // Ouvre la modale de confirmation
+  btnReset.addEventListener("click", function () {
+    ouvrirModal("modal-confirmation-reset");
+    console.log("[Jarvis] Demande de réinitialisation ouverte");
+  });
+
+  // Confirme et réinitialise
+  if (btnConfirmerReset) {
+    btnConfirmerReset.addEventListener("click", function () {
+      console.log(
+        "[Jarvis] 🔄 Réinitialisation confirmée - Rechargement de l'application"
+      );
+      window.location.reload(true);
+    });
+  }
+
+  // Annule la réinitialisation (PAS d'erreur dans les logs)
+  if (btnAnnulerReset) {
+    btnAnnulerReset.addEventListener("click", function () {
+      fermerModal("modal-confirmation-reset");
+      console.log("[Jarvis] Réinitialisation annulée par l'utilisateur");
+    });
+  }
+
+  // Fermeture par la croix
+  if (fermerModalReset) {
+    fermerModalReset.addEventListener("click", function () {
+      fermerModal("modal-confirmation-reset");
+      console.log("[Jarvis] Réinitialisation annulée");
+    });
+  }
+
+  // Fermeture en cliquant en dehors
+  if (modalReset) {
+    modalReset.addEventListener("click", function (e) {
+      if (e.target === modalReset) {
+        fermerModal("modal-confirmation-reset");
+        console.log("[Jarvis] Réinitialisation annulée");
+      }
+    });
+  }
 }

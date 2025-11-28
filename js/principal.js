@@ -16,7 +16,7 @@
  * - CHANGELOG.md
  * - <meta name="application-version"> dans index.html
  */
-const VERSION_APPLICATION = "0.1.0";
+const VERSION_APPLICATION = "0.1.5";
 
 /**
  * Fonction principale appelée au chargement de la page.

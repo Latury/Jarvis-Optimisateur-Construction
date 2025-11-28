@@ -17,17 +17,17 @@ body[data-theme="sombre"] {
   --couleur-secondaire: #ff6b6b;
 }
 
-/* Thème clair (sera activé plus tard en JS) */
+/* Thème clair (doux et confortable) */
 body[data-theme="clair"] {
-  --couleur-fond-principal: #f4f6fb;
-  --couleur-fond-secondaire: #ffffff;
-  --couleur-fond-panneau: #f0f3ff;
-  --couleur-bordure: #c3c9e6;
+  --couleur-fond-principal: #e8eaf0; /* Gris-bleu très doux */
+  --couleur-fond-secondaire: #f5f6fa; /* Blanc cassé léger */
+  --couleur-fond-panneau: #fafbfc; /* Blanc très léger */
+  --couleur-bordure: #d3d7e0; /* Bordures discrètes */
 
-  --couleur-texte: #22243a;
-  --couleur-texte-secondaire: #5c628a;
+  --couleur-texte: #2d3748; /* Gris foncé doux (pas noir) */
+  --couleur-texte-secondaire: #718096; /* Gris moyen */
 
-  --couleur-primaire: #007bff;
-  --couleur-primaire-hover: #005fd1;
-  --couleur-secondaire: #e55353;
+  --couleur-primaire: #4299e1; /* Bleu doux */
+  --couleur-primaire-hover: #3182ce; /* Bleu un peu plus foncé */
+  --couleur-secondaire: #e53e3e; /* Rouge doux */
 }

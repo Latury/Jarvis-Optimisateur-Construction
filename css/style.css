@@ -1,40 +1,70 @@
-/* ===========================
-   Variables de base
-   =========================== */
+/* ========================================
+   🎨 VARIABLES GLOBALES - PERSONNALISATION DES COULEURS
+   💡 Modifie les valeurs ici pour changer l'apparence de l'application
+   ======================================== */
 
 :root {
+  /* 🎨 Couleurs principales des cadres/boutons */
+  --couleur-cadre-menus: #00adb5; /* Couleur turquoise des menus déroulants */
+  --couleur-cadre-menus-hover: #00cfd9; /* Couleur au survol des menus */
+
+  /* Couleurs de fond (arrière-plans) */
   --couleur-fond-principal: #101320;
   --couleur-fond-secondaire: #181c2e;
   --couleur-fond-panneau: #21263b;
   --couleur-bordure: #2f3654;
 
+  /* Couleurs de texte */
   --couleur-texte: #f4f4f8;
   --couleur-texte-secondaire: #9ba4c7;
 
+  /* Couleurs d'action (boutons, liens) */
   --couleur-primaire: #00adb5;
   --couleur-primaire-hover: #00cfd9;
   --couleur-secondaire: #ff6b6b;
 
+  /* Rayons de bordure (arrondis des coins) */
   --rayon-petit: 4px;
   --rayon-moyen: 8px;
   --rayon-grand: 12px;
 
+  /* Espacements (marges et padding) */
   --espacement-xs: 4px;
   --espacement-s: 8px;
   --espacement-m: 12px;
   --espacement-l: 16px;
   --espacement-xl: 24px;
 
+  /* Ombres (effets d'élévation) */
   --ombre-legere: 0 2px 4px rgba(0, 0, 0, 0.25);
   --ombre-moyenne: 0 4px 10px rgba(0, 0, 0, 0.35);
 
+  /* Transitions (animations) */
   --transition-rapide: 0.15s ease-out;
   --transition-normale: 0.25s ease-out;
 }
 
-/* ===========================
-   Reset simple
-   =========================== */
+/*
+   📝 GUIDE DE PERSONNALISATION DES COULEURS
+
+   Pour changer la couleur des cadres des menus déroulants :
+   1. Modifie --couleur-cadre-menus ci-dessus
+   2. Sauvegarde le fichier et recharge la page (Ctrl+F5)
+
+   Exemples de couleurs (copie-colle dans --couleur-cadre-menus) :
+   - Rouge      : #ff6b6b
+   - Bleu       : #4a90e2
+   - Vert       : #2ecc71
+   - Orange     : #f39c12
+   - Violet     : #9b59b6
+   - Rose       : #e91e63
+   - Jaune      : #f1c40f
+*/
+
+/* ========================================
+   🔄 RÉINITIALISATION & BASE (Reset)
+   Remet à zéro les styles par défaut du navigateur
+   ======================================== */
 
 * {
   margin: 0;
@@ -42,25 +72,19 @@
   box-sizing: border-box;
 }
 
-/* ===========================
-   Structure globale
-   =========================== */
-
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--couleur-fond-principal);
   color: var(--couleur-texte);
   min-height: 100vh;
-
-  /* Mise en page sans scroll global */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* ===========================
-   En-tête
-   =========================== */
+/* ========================================
+   🎯 EN-TÊTE (Header - Barre du haut avec logo et boutons)
+   ======================================== */
 
 header {
   display: flex;
@@ -80,11 +104,14 @@ header {
 }
 
 .logo {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--rayon-moyen);
-  border: 2px solid var(--couleur-primaire);
-  box-shadow: var(--ombre-legere);
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 173, 181, 0.25);
+  object-fit: contain;
+  background: transparent;
+  margin-right: 12px;
 }
 
 .logo-titre h1 {
@@ -98,9 +125,9 @@ header {
   align-items: center;
 }
 
-/* ===========================
-   Boutons génériques
-   =========================== */
+/* ========================================
+   🔘 BOUTONS (Styles génériques)
+   ======================================== */
 
 button {
   border: none;
@@ -118,8 +145,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Variantes de boutons */
-
+/* Bouton primaire (turquoise) */
 .btn-header,
 .btn-primaire {
   background-color: var(--couleur-primaire);
@@ -132,6 +158,7 @@ button:disabled {
   transform: translateY(-1px);
 }
 
+/* Bouton secondaire (gris) */
 .btn-sec {
   background-color: var(--couleur-fond-panneau);
   color: var(--couleur-texte);
@@ -144,47 +171,84 @@ button:disabled {
   transform: translateY(-1px);
 }
 
-/* ===========================
-   Menu déroulant (hover avec transition douce)
-   =========================== */
+/* ========================================
+   🔔 BADGE D'ALERTE ERREURS (Badge rouge sur le bouton Console)
+   ======================================== */
+
+/* Le bouton console doit être en position relative pour le badge */
+#btn-console-logs {
+  position: relative;
+}
+
+/* Badge rouge qui affiche le nombre d'erreurs */
+.badge-alerte {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(255, 68, 68, 0.4);
+  animation: pulse-alerte 2s infinite;
+}
+
+/* Animation pulsante pour attirer l'attention */
+@keyframes pulse-alerte {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* ========================================
+   📋 MENUS DÉROULANTS (Dropdowns)
+   ======================================== */
 
 .menu-dropdown {
   position: relative;
   display: inline-block;
 }
 
-/* Menu caché par défaut avec opacity (permet les transitions) */
-.dropdown-contenu {
+.menu-dropdown .dropdown-contenu {
   position: absolute;
   top: 100%;
   left: 0;
   background-color: var(--couleur-fond-secondaire);
-  border: 2px solid var(--couleur-bordure);
+  border: 2px solid var(--couleur-cadre-menus);
   border-radius: var(--rayon-moyen);
   box-shadow: var(--ombre-moyenne);
   min-width: 240px;
   padding: 8px;
   z-index: 1000;
   margin-top: 4px;
-
-  /* Structure toujours en flex, mais invisible par défaut */
   display: flex;
   flex-direction: column;
   gap: 4px;
-
-  /* Masqué par défaut */
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 
-  /* Transition douce avec délai de fermeture */
-  transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
-  transition-delay: 0.3s; /* Garde visible 0.2s après avoir quitté le survol */
+  /* ✅ Transition rapide */
+  transition: opacity 0.15s ease-out, visibility 0.15s ease-out;
 }
 
-/* Affiche le menu au survol (annule le délai) */
+/* ✅ Affiche le menu avec la classe JavaScript */
+.menu-dropdown.menu-ouvert .dropdown-contenu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
 
-/* Style des boutons dans le menu déroulant */
 .btn-dropdown {
   width: 100%;
   text-align: left;
@@ -213,9 +277,21 @@ button:disabled {
   border-color: var(--couleur-primaire);
 }
 
-/* ===========================
-   Contenu principal
-   =========================== */
+/* Bouton Réinitialiser en rouge (danger) */
+.btn-dropdown.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  border: 2px solid #b91c1c;
+}
+
+.btn-dropdown.btn-danger:hover {
+  background-color: #b91c1c;
+  border-color: #991b1b;
+}
+
+/* ========================================
+   📐 MISE EN PAGE PRINCIPALE (Layout - 3 colonnes)
+   ======================================== */
 
 main {
   flex: 1;
@@ -225,8 +301,6 @@ main {
   min-height: 0;
   overflow: hidden;
 }
-
-/* Colonnes génériques */
 
 .colonne {
   background-color: var(--couleur-fond-secondaire);
@@ -239,33 +313,30 @@ main {
   min-height: 0;
 }
 
-/* Colonne gauche (inventaire) */
-
+/* Colonne gauche (Inventaire) - Largeur fixe 280px */
 .colonne.gauche {
   width: 280px;
   flex-shrink: 0;
   gap: var(--espacement-m);
 }
 
-/* Colonne centrale (plateau) */
-
+/* Colonne centrale (Plateau) - Prend tout l'espace restant */
 .colonne.centre {
   flex: 1;
   min-width: 0;
   gap: var(--espacement-m);
 }
 
-/* Colonne droite (étapes + stats) */
-
+/* Colonne droite (Statistiques) - Largeur fixe 320px */
 .colonne.droite {
   width: 320px;
   flex-shrink: 0;
   gap: var(--espacement-m);
 }
 
-/* ===========================
-   Inventaire
-   =========================== */
+/* ========================================
+   📦 INVENTAIRE (Colonne gauche - 5 lignes × 3 colonnes)
+   ======================================== */
 
 .inventaire-zone {
   background-color: var(--couleur-fond-panneau);
@@ -283,18 +354,64 @@ main {
   color: var(--couleur-primaire);
 }
 
+/* Conteneur de la grille (centré) */
 .inventaire-grille {
   flex: 1;
   border-radius: var(--rayon-moyen);
   border: 1px dashed var(--couleur-bordure);
+  padding: var(--espacement-s);
+  overflow-y: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
 }
 
-/* Pagination */
+/* Pages d'inventaire (8 pages total) */
+.inventaire-page {
+  display: flex;
+  flex-direction: column;
+}
 
+/* Lignes de cases (5 lignes par page) */
+.inventaire-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+/* Cases individuelles (3 colonnes par ligne)
+   💡 Modifie width/height pour changer la taille */
+.case-inventaire {
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--couleur-bordure);
+  background: var(--couleur-fond-secondaire);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-rapide);
+  position: relative;
+}
+
+.case-inventaire:hover {
+  border-color: var(--couleur-primaire);
+  background: var(--couleur-fond-panneau);
+  transform: scale(1.05);
+}
+
+/* Petit cercle dans les cases vides */
+.case-inventaire.case-vide::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 1px dashed var(--couleur-bordure);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+/* Pagination inventaire (en bas) */
 .pagination {
   display: flex;
   align-items: center;
@@ -320,11 +437,21 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--couleur-fond-secondaire);
+  color: var(--couleur-texte);
+  border-radius: 50%;
+  border: 2px solid var(--couleur-bordure);
+  font-size: 1.1rem;
 }
 
-/* ===========================
-   Plateau
-   =========================== */
+.btn-pagination:hover {
+  border-color: var(--couleur-primaire);
+  background: var(--couleur-fond-panneau);
+}
+
+/* ========================================
+   🏗️ PLATEAU (Colonne centrale - 8 lignes × 12 colonnes)
+   ======================================== */
 
 .plateau-zone {
   background-color: var(--couleur-fond-panneau);
@@ -342,18 +469,61 @@ main {
   color: var(--couleur-primaire);
 }
 
+/* Conteneur de la grille ✅ CORRIGÉ : centré + pas de scroll horizontal */
 .plateau-grille {
   flex: 1;
   border-radius: var(--rayon-moyen);
   border: 1px dashed var(--couleur-bordure);
+  padding: var(--espacement-s);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Lignes du plateau (8 lignes) */
+.plateau-row {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+/* Cases individuelles (12 colonnes par ligne)
+   💡 Modifie width/height pour changer la taille */
+.case-plateau {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--couleur-bordure);
+  background: var(--couleur-fond-secondaire);
+  border-radius: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  cursor: pointer;
+  transition: all var(--transition-rapide);
+  position: relative;
+  flex-shrink: 0;
 }
 
-/* Étapes sous le plateau */
+.case-plateau:hover {
+  border-color: var(--couleur-primaire);
+  background: var(--couleur-fond-panneau);
+  transform: scale(1.08);
+}
 
+/* Petit carré dans les cases vides */
+.case-plateau.case-vide::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 1px dashed var(--couleur-bordure);
+  border-radius: 2px;
+  opacity: 0.25;
+}
+
+/* Barre d'étapes sous le plateau */
 .etapes-basse {
   display: flex;
   align-items: center;
@@ -372,6 +542,7 @@ main {
   color: var(--couleur-texte-secondaire);
 }
 
+/* Flèches rondes identiques à l'inventaire */
 .btn-etape {
   min-width: 32px;
   height: 32px;
@@ -379,11 +550,21 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--couleur-fond-secondaire);
+  color: var(--couleur-texte);
+  border-radius: 50%;
+  border: 2px solid var(--couleur-bordure);
+  font-size: 1.1rem;
 }
 
-/* ===========================
-   Statistiques (colonne droite)
-   =========================== */
+.btn-etape:hover {
+  border-color: var(--couleur-primaire);
+  background: var(--couleur-fond-panneau);
+}
+
+/* ========================================
+   📊 STATISTIQUES (Colonne droite - Stats)
+   ======================================== */
 
 .stats-box {
   background-color: var(--couleur-fond-panneau);
@@ -415,9 +596,9 @@ main {
   color: var(--couleur-texte-secondaire);
 }
 
-/* ===========================
-   Modals (pop-ups)
-   =========================== */
+/* ========================================
+   🪟 FENÊTRES MODALES (Modals - Pop-ups)
+   ======================================== */
 
 .modal {
   display: none;
@@ -441,16 +622,16 @@ main {
   border: 3px solid var(--couleur-primaire);
   border-radius: var(--rayon-grand);
   padding: var(--espacement-l);
-  max-width: 580px; /* ← Largeur augmentée */
+  max-width: 580px;
   width: 90%;
   position: relative;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .modal-contenu.modal-large {
-  max-width: 1280px;
-  min-width: 560px;
-  max-height: 92vh;
+  max-width: 1100px;
+  min-width: 450px;
+  max-height: 85vh;
   overflow: hidden;
 }
 
@@ -489,7 +670,7 @@ main {
   padding: var(--espacement-s);
   font-family: monospace;
   font-size: 0.85rem;
-  resize: none; /* ← Empêche le redimensionnement */
+  resize: none;
   margin-bottom: var(--espacement-s);
 }
 
@@ -506,9 +687,9 @@ main {
   justify-content: flex-end;
 }
 
-/* ===========================
-   Pied de page
-   =========================== */
+/* ========================================
+   👣 PIED DE PAGE (Footer)
+   ======================================== */
 
 footer {
   background-color: var(--couleur-fond-secondaire);
@@ -524,253 +705,9 @@ footer {
   margin: 2px 0;
 }
 
-#contenu-console {
-  background: #0d1117;
-  color: #c9d1d9;
-  font-size: 0.88em;
-  line-height: 1.6;
-  height: 420px;
-  max-height: 55vh;
-  min-width: 340px;
-  max-width: 98vw;
-  overflow-y: auto;
-  padding: 14px;
-  border-radius: 8px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
-  border: 1px solid #30363d;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-/* Coloration syntaxique */
-.log-info {
-  color: #51d2ec;
-}
-.log-warn {
-  color: #ffca61;
-}
-.log-error {
-  color: #ff6d6d;
-  font-weight: bold;
-}
-.log-debug {
-  color: #be96ff;
-}
-
-/* ============================= */
-/*   PALETTE CONSOLE DES LOGS    */
-/* ============================= */
-:root {
-  --couleur-fond-principal: #101320; /* Fond général foncé */
-  --couleur-fond-secondaire: #181c2e; /* Fond secondaire (header, sidebar, panels) */
-  --couleur-fond-panneau: #21263b; /* Fond panneau, modals, console */
-  --couleur-bordure: #2f3654; /* Bordures panels/boutons */
-  --couleur-texte: #f4f4f8; /* Texte principal */
-  --couleur-texte-secondaire: #9ba4c7; /* Texte secondaire, désactivé */
-  --couleur-primaire: #00adb5; /* Turquoise vif (bouton, hover) */
-  --couleur-primaire-hover: #00cfd9; /* Turquoise encore plus vif (hover) */
-  --couleur-secondaire: #ff6b6b; /* Rouge accent */
-}
-
-/* Fond principal console et coloration logs */
-#contenu-console {
-  background: #0d1117;
-  color: #c9d1d9;
-  border: 1px solid #30363d;
-}
-.log-info {
-  color: #51d2ec;
-} /* Infos : bleu clair */
-.log-warn {
-  color: #ffca61;
-} /* Warning : orange clair */
-.log-error {
-  color: #ff6d6d;
-  font-weight: bold;
-} /* Erreur : rouge clair */
-.log-debug {
-  color: #be96ff;
-} /* Debug : violet clair */
-
-/* ============================== */
-/* Barre d'outils Console PRO     */
-/* ============================== */
-.console-toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-/* Boutons génériques (Effacer, Copier, Exporter) */
-.console-toolbar button {
-  font-size: 0.85em;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--couleur-bordure);
-  background: var(--couleur-primaire);
-  color: #fff;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.2s, color 0.2s;
-}
-.console-toolbar button:hover {
-  background: var(--couleur-primaire-hover);
-  color: white;
-  border-color: var(--couleur-primaire-hover);
-  transform: translateY(-1px);
-}
-
-/* Barre de recherche élargie à droite */
-.console-toolbar input {
-  flex: 1;
-  min-width: 230px; /* Largeur minimum plus grande */
-  max-width: 420px; /* Largeur max */
-  background: var(--couleur-fond-panneau);
-  color: var(--couleur-texte);
-  border-radius: 6px;
-  border: 1px solid var(--couleur-bordure);
-  padding: 5px 12px;
-  font-size: 0.98em;
-  transition: border-color 0.2s;
-}
-.console-toolbar input:focus {
-  outline: none;
-  border-color: var(--couleur-primaire);
-}
-
-/* ============================== */
-/* PAGINATION  - Flèches & pages  */
-/* ============================== */
-.console-toolbar .console-pagination {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin: 0 6px;
-}
-
-/* Flèches carrées, fond clair, triangle foncé */
-.console-toolbar .console-pagination button {
-  width: 38px;
-  height: 38px;
-  font-size: 1.5em;
-  background: #2f3654; /* Fond très clair style capture */
-  color: #ffffff; /* Triangle/flèche bleu-gris foncé */
-  border: none;
-  border-radius: 12px; /* Carré arrondi style moderne */
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 4px 0 #191c2a22;
-  transition: background 0.18s, color 0.18s;
-}
-.console-toolbar .console-pagination button:hover {
-  background: #e3ebff; /* Légère variation sur hover */
-  color: #0077aa; /* Triangle un peu plus turquoise au hover */
-}
-
-/* Compteur "1 / 1" entre les flèches */
-#console-pagination-infos {
-  font-size: 1.08em;
-  color: #f6f6fa;
-  letter-spacing: 1px;
-  margin: 0 4px;
-}
-
-/* =============================================
-   MODALS MARKDOWN (Changelog, Patchnotes, Roadmap)
-   ============================================= */
-
-.modal-contenu.modal-large {
-  max-width: 750px;
-  max-height: 85vh;
-  overflow: hidden;
-}
-
-.contenu-markdown {
-  background: var(--couleur-fond-panneau);
-  color: var(--couleur-texte);
-  padding: 16px;
-  border-radius: 8px;
-  overflow-y: auto;
-  max-height: 60vh;
-  min-height: 300px;
-  font-size: 0.95em;
-  line-height: 1.7;
-}
-
-.contenu-markdown h1,
-.contenu-markdown h2,
-.contenu-markdown h3 {
-  color: var(--couleur-primaire);
-  margin-top: 1.2em;
-  margin-bottom: 0.6em;
-}
-
-.contenu-markdown h1 {
-  font-size: 1.8em;
-  border-bottom: 2px solid var(--couleur-bordure);
-  padding-bottom: 0.3em;
-}
-.contenu-markdown h2 {
-  font-size: 1.5em;
-  border-bottom: 1px solid var(--couleur-bordure);
-  padding-bottom: 0.3em;
-}
-.contenu-markdown h3 {
-  font-size: 1.2em;
-}
-
-.contenu-markdown code {
-  background: #1c1f26;
-  color: #7ee787;
-  border-radius: 3px;
-  padding: 2px 6px;
-  font-size: 0.9em;
-  font-family: monospace;
-}
-
-.contenu-markdown pre {
-  background: #161b22;
-  color: #c9d1d9;
-  border-radius: 6px;
-  padding: 12px;
-  overflow-x: auto;
-  border: 1px solid #30363d;
-}
-
-.contenu-markdown ul,
-.contenu-markdown ol {
-  margin-left: 24px;
-  margin-bottom: 1em;
-}
-
-.contenu-markdown table {
-  border-collapse: collapse;
-  margin: 16px 0;
-  width: 100%;
-}
-
-.contenu-markdown th,
-.contenu-markdown td {
-  border: 1px solid var(--couleur-bordure);
-  padding: 8px 12px;
-  text-align: left;
-}
-
-.contenu-markdown th {
-  background: var(--couleur-fond-secondaire);
-  font-weight: 600;
-}
-
-/* =============================================
-   CONSOLE JARVIS PRO
-/* ============================== */
+/* ========================================
+   🪵 CONSOLE DES LOGS
+   ======================================== */
 
 #contenu-console {
   background: #0d1117;
@@ -821,29 +758,30 @@ footer {
   padding: 6px 12px;
   border-radius: 6px;
   border: 1px solid var(--couleur-bordure);
-  background: var(--couleur-fond-panneau);
-  color: var(--couleur-texte);
+  background: var(--couleur-primaire);
+  color: #fff;
   cursor: pointer;
-  transition: all 0.2s;
   font-weight: 500;
+  transition: background 0.2s, color 0.2s;
 }
 
 .console-toolbar button:hover {
-  background: var(--couleur-primaire);
+  background: var(--couleur-primaire-hover);
   color: white;
-  border-color: var(--couleur-primaire);
+  border-color: var(--couleur-primaire-hover);
   transform: translateY(-1px);
 }
 
 .console-toolbar input {
   flex: 1;
-  min-width: 150px;
+  min-width: 230px;
+  max-width: 420px;
   background: var(--couleur-fond-panneau);
   color: var(--couleur-texte);
   border-radius: 6px;
   border: 1px solid var(--couleur-bordure);
-  padding: 5px 10px;
-  font-size: 0.85em;
+  padding: 5px 12px;
+  font-size: 0.98em;
   transition: border-color 0.2s;
 }
 
@@ -852,16 +790,46 @@ footer {
   border-color: var(--couleur-primaire);
 }
 
-/* MODALS markdown & console - larges + scrollbar stylée */
-.modal-contenu.modal-large {
-  max-width: 1100px; /* largeur très large */
-  min-width: 450px;
-  max-height: 85vh;
-  overflow: hidden;
+.console-toolbar .console-pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 6px;
 }
 
-.contenu-markdown,
-#contenu-console {
+/* ✅ Flèches rondes identiques à l'inventaire */
+.console-toolbar .console-pagination button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--couleur-fond-secondaire);
+  color: var(--couleur-texte);
+  border-radius: 50%;
+  border: 2px solid var(--couleur-bordure);
+  font-size: 1.1rem;
+  box-shadow: none;
+}
+
+.console-toolbar .console-pagination button:hover {
+  border-color: var(--couleur-primaire);
+  background: var(--couleur-fond-panneau);
+}
+
+#console-pagination-infos {
+  font-size: 0.85rem;
+  color: var(--couleur-texte);
+  letter-spacing: 0;
+  margin: 0 4px;
+}
+
+/* ========================================
+   📝 DOCUMENTS MARKDOWN (Changelog, Patchnotes, Roadmap)
+   ======================================== */
+
+.contenu-markdown {
   background: var(--couleur-fond-panneau);
   color: var(--couleur-texte);
   padding: 20px;
@@ -875,43 +843,91 @@ footer {
   scrollbar-color: var(--couleur-primaire) var(--couleur-fond-secondaire);
 }
 
-/* Scrollbar moderne */
+.contenu-markdown h1,
+.contenu-markdown h2,
+.contenu-markdown h3 {
+  color: var(--couleur-primaire);
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+}
+
+.contenu-markdown h1 {
+  font-size: 1.8em;
+  border-bottom: 2px solid var(--couleur-bordure);
+  padding-bottom: 0.3em;
+}
+
+.contenu-markdown h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid var(--couleur-bordure);
+  padding-bottom: 0.3em;
+}
+
+.contenu-markdown h3 {
+  font-size: 1.2em;
+}
+
+.contenu-markdown code {
+  background: #1c1f26;
+  color: #7ee787;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  font-family: monospace;
+}
+
+.contenu-markdown pre {
+  background: #161b22;
+  color: #c9d1d9;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  border: 1px solid #30363d;
+}
+
+.contenu-markdown ul,
+.contenu-markdown ol {
+  margin-left: 24px;
+  margin-bottom: 1em;
+}
+
+.contenu-markdown table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.contenu-markdown th,
+.contenu-markdown td {
+  border: 1px solid var(--couleur-bordure);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.contenu-markdown th {
+  background: var(--couleur-fond-secondaire);
+  font-weight: 600;
+}
+
+/* ========================================
+   📜 BARRES DE DÉFILEMENT PERSONNALISÉES (Scrollbar)
+   ======================================== */
+
 .contenu-markdown::-webkit-scrollbar,
 #contenu-console::-webkit-scrollbar {
   width: 9px;
   background: var(--couleur-fond-secondaire);
   border-radius: 8px;
 }
+
 .contenu-markdown::-webkit-scrollbar-thumb,
 #contenu-console::-webkit-scrollbar-thumb {
   background: var(--couleur-primaire);
   border-radius: 6px;
   border: 2px solid var(--couleur-fond-panneau);
 }
+
 .contenu-markdown::-webkit-scrollbar-thumb:hover,
 #contenu-console::-webkit-scrollbar-thumb:hover {
   background: var(--couleur-primaire-hover);
-}
-
-.menu-dropdown .dropdown-contenu {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.2s, visibility 0.2s;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  background: var(--couleur-fond-panneau);
-  border: 1px solid var(--couleur-bordure);
-  border-radius: 8px;
-  padding: 8px;
-  top: 100%;
-  left: 0;
-  min-width: 220px;
-  z-index: 1002;
-}
-.menu-dropdown.ouvert .dropdown-contenu {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
 }
